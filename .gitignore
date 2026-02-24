@@ -37,7 +37,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Antigravity/Gemini specific
-.gemini/tmp/
-.gemini/brain/*/verify_*.webp
-.gemini/brain/**/*.png
-.gemini/brain/**/*.webp
+.gemini/
