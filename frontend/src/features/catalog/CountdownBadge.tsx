@@ -14,6 +14,7 @@ export function CountdownBadge() {
     const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0, total: 0 });
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
         setTimeLeft(getTimeUntilCutoff());
         const interval = setInterval(() => {

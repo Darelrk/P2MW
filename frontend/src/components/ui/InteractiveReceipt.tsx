@@ -9,7 +9,13 @@ export function InteractiveReceipt() {
 
     // Prevent SSR hydration errors by deferring math
     const [mounted, setMounted] = useState(false);
-    useEffect(() => setMounted(true), []);
+    const [orderId, setOrderId] = useState("");
+
+    useEffect(() => {
+        setMounted(true);
+        // Fix for impure function in render:
+        setOrderId(String(Math.floor(Math.random() * 9000) + 1000));
+    }, []);
 
     if (!mounted) return null;
 
@@ -50,7 +56,7 @@ export function InteractiveReceipt() {
             >
                 <div className="text-center mb-8 border-b-2 border-dashed border-forest/20 pb-6">
                     <h2 className="font-display font-bold text-2xl tracking-widest text-forest">P2MW BOUQUET</h2>
-                    <p className="text-xs mt-2 font-mono">ID Pesanan: #{(Math.floor(Math.random() * 9000) + 1000)}</p>
+                    <p className="text-xs mt-2 font-mono">ID Pesanan: #{orderId}</p>
                     <p className="text-xs font-mono">{new Date().toLocaleDateString('id-ID')}</p>
                 </div>
 

@@ -1,29 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HandHeart, ShieldCheck, Clock } from "lucide-react";
-import { cn } from "@/lib/cn";
-
-const FEATURES = [
-    {
-        icon: HandHeart,
-        label: "Rajutan Tangan",
-        description: "100% handmade dengan cinta",
-        accent: "bg-blush/15 text-forest",
-    },
-    {
-        icon: ShieldCheck,
-        label: "Kualitas Abadi",
-        description: "Tidak layu, tanpa perawatan",
-        accent: "bg-forest/10 text-forest",
-    },
-    {
-        icon: Clock,
-        label: "Pengiriman Cepat",
-        description: "Tiba dalam 3 jam (Jabodetabek)",
-        accent: "bg-terracotta/10 text-terracotta",
-    },
-];
+import { HandHeart, Clock } from "lucide-react";
 
 export function TrustBar() {
     return (

@@ -1,8 +1,7 @@
 "use client";
 
-import { Instagram, Twitter, Mail, Heart, ArrowRight, Send } from "lucide-react";
+import { Instagram, Twitter, Mail, Heart, Send } from "lucide-react";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/cn";
 
 export function Footer() {
     return (

@@ -67,7 +67,7 @@ function HeroBackground() {
                     className="object-cover opacity-15"
                     priority
                     fetchPriority="high"
-                    sizes="100vw"
+                    sizes="(max-width: 1280px) 100vw, 1280px"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-forest/70 via-forest/50 to-forest/80" />
                 <div className="absolute inset-0 bg-gradient-to-r from-forest/80 via-forest/40 to-transparent" />
@@ -84,7 +84,6 @@ function HeroBackground() {
 function HeroHeadline() {
     return (
         <div
-            className="animate-fade-up"
             style={{ textShadow: "0 2px 16px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.3)" }}
         >
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/20 px-4 py-1.5 backdrop-blur-md">

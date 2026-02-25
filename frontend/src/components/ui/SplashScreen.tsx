@@ -10,6 +10,7 @@ export function SplashScreen() {
         // Cek jika splash screen sudah pernah muncul di sesi ini
         const hasSeenSplash = sessionStorage.getItem("p2mw_splash_seen");
         if (hasSeenSplash) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsVisible(false);
             return;
         }
@@ -25,6 +26,7 @@ export function SplashScreen() {
 
     // Hindari hydration mismatch saat SSR
     const [mounted, setMounted] = useState(false);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => setMounted(true), []);
     if (!mounted) return null;
 

@@ -1,0 +1,101 @@
+
+C:\JS\P2MW\frontend\src\components\ui\Footer.tsx
+  3:43  warning  'ArrowRight' is defined but never used  @typescript-eslint/no-unused-vars
+  5:10  warning  'cn' is defined but never used          @typescript-eslint/no-unused-vars
+
+C:\JS\P2MW\frontend\src\components\ui\InteractiveReceipt.tsx
+  53:85  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\JS\P2MW\frontend\src\components\ui\InteractiveReceipt.tsx:53:85
+  51 |                 <div className="text-center mb-8 border-b-2 border-dashed border-forest/20 pb-6">
+  52 |                     <h2 className="font-display font-bold text-2xl tracking-widest text-forest">P2MW BOUQUET</h2>
+> 53 |                     <p className="text-xs mt-2 font-mono">ID Pesanan: #{(Math.floor(Math.random() * 9000) + 1000)}</p>
+     |                                                                                     ^^^^^^^^^^^^^ Cannot call impure function
+  54 |                     <p className="text-xs font-mono">{new Date().toLocaleDateString('id-ID')}</p>
+  55 |                 </div>
+  56 |  react-hooks/purity
+
+C:\JS\P2MW\frontend\src\components\ui\SlideOutCart.tsx
+  4:26  warning  'Plus' is defined but never used    @typescript-eslint/no-unused-vars
+  4:32  warning  'Minus' is defined but never used   @typescript-eslint/no-unused-vars
+  4:39  warning  'Trash2' is defined but never used  @typescript-eslint/no-unused-vars
+  5:8   warning  'Image' is defined but never used   @typescript-eslint/no-unused-vars
+  8:10  warning  'cn' is defined but never used      @typescript-eslint/no-unused-vars
+
+C:\JS\P2MW\frontend\src\components\ui\SplashScreen.tsx
+  13:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\JS\P2MW\frontend\src\components\ui\SplashScreen.tsx:13:13
+  11 |         const hasSeenSplash = sessionStorage.getItem("p2mw_splash_seen");
+  12 |         if (hasSeenSplash) {
+> 13 |             setIsVisible(false);
+     |             ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |             return;
+  15 |         }
+  16 |                       react-hooks/set-state-in-effect
+  28:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\JS\P2MW\frontend\src\components\ui\SplashScreen.tsx:28:21
+  26 |     // Hindari hydration mismatch saat SSR
+  27 |     const [mounted, setMounted] = useState(false);
+> 28 |     useEffect(() => setMounted(true), []);
+     |                     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |     if (!mounted) return null;
+  30 |
+  31 |     return (  react-hooks/set-state-in-effect
+
+C:\JS\P2MW\frontend\src\components\ui\TrustBar.tsx
+  5:10  warning  'cn' is defined but never used                 @typescript-eslint/no-unused-vars
+  7:7   warning  'FEATURES' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\JS\P2MW\frontend\src\features\bouquet-builder\FlowerConfetti.tsx
+  48:44  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\JS\P2MW\frontend\src\features\bouquet-builder\FlowerConfetti.tsx:48:44
+  46 |                             y: "110vh",
+  47 |                             opacity: [0, 1, 1, 0],
+> 48 |                             rotate: 360 * (Math.random() > 0.5 ? 1 : -1)
+     |                                            ^^^^^^^^^^^^^ Cannot call impure function
+  49 |                         }}
+  50 |                         exit={{ opacity: 0 }}
+  51 |                         transition={{  react-hooks/purity
+
+C:\JS\P2MW\frontend\src\features\bouquet-builder\LayeredPreview.tsx
+  13:7  warning  'COLOR_MAP' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\JS\P2MW\frontend\src\features\catalog\CountdownBadge.tsx
+  17:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\JS\P2MW\frontend\src\features\catalog\CountdownBadge.tsx:17:9
+  15 |
+  16 |     useEffect(() => {
+> 17 |         setMounted(true);
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  18 |         setTimeLeft(getTimeUntilCutoff());
+  19 |         const interval = setInterval(() => {
+  20 |             setTimeLeft(getTimeUntilCutoff());  react-hooks/set-state-in-effect
+
+✖ 15 problems (5 errors, 10 warnings)
+

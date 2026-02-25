@@ -11,6 +11,7 @@ interface Petal {
     x: number;
     duration: number;
     delay: number;
+    rotation: number;
 }
 
 export function FlowerConfetti({ active }: { active: boolean }) {
@@ -24,7 +25,9 @@ export function FlowerConfetti({ active }: { active: boolean }) {
                 x: Math.random() * 100, // percentage
                 duration: 2 + Math.random() * 3,
                 delay: Math.random() * 2,
+                rotation: 360 * (Math.random() > 0.5 ? 1 : -1)
             }));
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setPetals(newPetals);
 
             // Auto-cleanup after 5s
@@ -45,7 +48,7 @@ export function FlowerConfetti({ active }: { active: boolean }) {
                         animate={{
                             y: "110vh",
                             opacity: [0, 1, 1, 0],
-                            rotate: 360 * (Math.random() > 0.5 ? 1 : -1)
+                            rotate: petal.rotation
                         }}
                         exit={{ opacity: 0 }}
                         transition={{

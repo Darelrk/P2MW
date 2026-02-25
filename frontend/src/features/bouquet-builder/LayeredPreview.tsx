@@ -8,15 +8,8 @@ import { layerSwap } from "@/lib/animations";
 import { cn } from "@/lib/cn";
 
 /**
- * Color mappings for the preview layers.
+ * Wrapping mappings for the preview layers.
  */
-const COLOR_MAP: Record<string, string> = {
-    merah: "#C94C4C",
-    pink: "#E8A0BF",
-    putih: "#FEFCFA",
-    kuning: "#D4A574",
-    ungu: "#9B59B6",
-};
 
 const WRAP_MAP: Record<string, { color: string; label: string }> = {
     kraft: { color: "#C8A96E", label: "Kraft" },
