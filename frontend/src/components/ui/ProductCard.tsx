@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import { Zap, ArrowRight, Heart } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { fadeUp } from "@/lib/animations";
+import { useCartStore } from "@/store/useCartStore";
 
 interface ProductCardProps {
     name: string;
@@ -22,6 +24,27 @@ export function ProductCard({
     isExpress = false,
 }: ProductCardProps) {
     const lowStock = stock <= 3;
+    const { addItem } = useCartStore();
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.preventDefault();
+
+        // Parse "Rp 250.000" to 250000
+        const numericPrice = parseInt(price.replace(/[^0-9]/g, ""), 10) || 0;
+
+        addItem({
+            id: `express-${name.toLowerCase().replace(/\s+/g, '-')}`,
+            type: "express",
+            name,
+            price: numericPrice,
+            image,
+        });
+
+        toast.success("Berhasil ditambahkan", {
+            description: `${name} telah masuk ke keranjang belanja Anda.`,
+            icon: "🛍️"
+        });
+    };
 
     return (
         <motion.article
@@ -86,22 +109,41 @@ export function ProductCard({
                     </div>
 
                     {/* CTA on Hover (Desktop) / Always (Mobile) */}
-                    <div
-                        className={cn(
-                            "mt-4 flex w-full items-center justify-between transition-all duration-500",
-                            "opacity-100 translate-y-0 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0"
-                        )}
-                    >
-                        <span className="font-body text-xs font-bold uppercase tracking-widest text-forest">
-                            {isExpress ? "Pesan Ekspres" : "Detail Produk"}
-                        </span>
-                        <motion.div
-                            whileTap={{ scale: 0.9 }}
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-cream shadow-lg transition-transform duration-300 group-hover:translate-x-1"
+                    {isExpress ? (
+                        <button
+                            onClick={handleAddToCart}
+                            className={cn(
+                                "mt-4 flex w-full items-center justify-between transition-all duration-500",
+                                "opacity-100 translate-y-0 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0"
+                            )}
                         >
-                            <ArrowRight className="h-4 w-4" />
-                        </motion.div>
-                    </div>
+                            <span className="font-body text-xs font-bold uppercase tracking-widest text-forest">
+                                Pesan Ekspres
+                            </span>
+                            <motion.div
+                                whileTap={{ scale: 0.9 }}
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-cream shadow-lg transition-transform duration-300 group-hover:translate-x-1"
+                            >
+                                <ArrowRight className="h-4 w-4" />
+                            </motion.div>
+                        </button>
+                    ) : (
+                        <div
+                            className={cn(
+                                "mt-4 flex w-full items-center justify-between transition-all duration-500",
+                                "opacity-100 translate-y-0 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0"
+                            )}
+                        >
+                            <span className="font-body text-xs font-bold uppercase tracking-widest text-forest">
+                                Detail Produk
+                            </span>
+                            <motion.div
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-cream shadow-lg transition-transform duration-300 group-hover:translate-x-1"
+                            >
+                                <ArrowRight className="h-4 w-4" />
+                            </motion.div>
+                        </div>
+                    )}
                 </div>
             </div>
         </motion.article>

@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { scaleOnTap } from "@/lib/animations";
+import { useCartStore } from "@/store/useCartStore";
+import { Magnetic } from "@/components/ui/Magnetic";
 
 const LINKS = [
     { label: "Beranda", href: "/" },
@@ -15,6 +17,9 @@ const LINKS = [
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+
+    const { items, toggleCart } = useCartStore();
+    const itemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -57,14 +62,34 @@ export function Navbar() {
                             {link.label}
                         </motion.a>
                     ))}
-                    <motion.a
-                        href="/custom"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="rounded-full bg-blush px-6 py-2 font-body text-sm font-bold text-forest transition-all shadow-lg"
-                    >
-                        Mulai Merakit
-                    </motion.a>
+
+                    <Magnetic strength={0.4}>
+                        <motion.button
+                            variants={scaleOnTap}
+                            whileTap="tap"
+                            className="relative text-cream/80 transition-colors hover:text-white p-2"
+                            aria-label="Keranjang Belanja"
+                            onClick={toggleCart}
+                        >
+                            <ShoppingBag className="h-5 w-5" />
+                            {itemsCount > 0 && (
+                                <span className="absolute right-0 top-0 flex h-4 w-4 items-center justify-center rounded-full bg-red font-body text-[9px] font-bold text-white shadow-sm ring-2 ring-forest">
+                                    {itemsCount > 9 ? "9+" : itemsCount}
+                                </span>
+                            )}
+                        </motion.button>
+                    </Magnetic>
+
+                    <Magnetic strength={0.2}>
+                        <motion.a
+                            href="/custom"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="rounded-full bg-blush px-6 py-2 font-body text-sm font-bold text-forest transition-all shadow-lg block"
+                        >
+                            Mulai Merakit
+                        </motion.a>
+                    </Magnetic>
                 </div>
 
                 {/* Mobile Icons */}
@@ -72,10 +97,16 @@ export function Navbar() {
                     <motion.button
                         variants={scaleOnTap}
                         whileTap="tap"
-                        className="text-cream"
+                        className="relative text-cream"
                         aria-label="Keranjang Belanja"
+                        onClick={toggleCart}
                     >
                         <ShoppingBag className="h-6 w-6" />
+                        {itemsCount > 0 && (
+                            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red font-body text-[9px] font-bold text-white shadow-sm ring-2 ring-forest">
+                                {itemsCount > 9 ? "9+" : itemsCount}
+                            </span>
+                        )}
                     </motion.button>
                     <motion.button
                         onClick={() => setIsOpen(!isOpen)}

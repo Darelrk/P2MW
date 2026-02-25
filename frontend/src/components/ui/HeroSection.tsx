@@ -83,10 +83,8 @@ function HeroBackground() {
 
 function HeroHeadline() {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+        <div
+            className="animate-fade-up"
             style={{ textShadow: "0 2px 16px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.3)" }}
         >
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/20 px-4 py-1.5 backdrop-blur-md">
@@ -103,7 +101,7 @@ function HeroHeadline() {
             <p className="mt-5 max-w-md font-body text-base leading-relaxed text-white">
                 Rajutan tangan premium. Bebas debu, anti alergi, dan abadi.
             </p>
-        </motion.div>
+        </div>
     );
 }
 

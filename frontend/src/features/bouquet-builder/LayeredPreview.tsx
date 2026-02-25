@@ -1,6 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import Image from "next/image";
 import { useBouquetStore } from "./store";
 import { layerSwap } from "@/lib/animations";
 import { cn } from "@/lib/cn";
@@ -31,12 +33,48 @@ const WRAP_MAP: Record<string, { color: string; label: string }> = {
 export function LayeredPreview() {
     const { flower, color, wrap } = useBouquetStore();
 
+    // Parallax Tilt Setup
+    const ref = useRef<HTMLDivElement>(null);
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+
+    const springConfig = { damping: 20, stiffness: 150, mass: 0.5 };
+    const mouseXSpring = useSpring(x, springConfig);
+    const mouseYSpring = useSpring(y, springConfig);
+
+    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!ref.current) return;
+        const rect = ref.current.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const xPct = mouseX / rect.width - 0.5;
+        const yPct = mouseY / rect.height - 0.5;
+        x.set(xPct);
+        y.set(yPct);
+    };
+
+    const handleMouseLeave = () => {
+        x.set(0);
+        y.set(0);
+    };
+
     return (
-        <div className="sticky top-8">
-            <div
+        <div className="sticky top-8" style={{ perspective: "1200px" }}>
+            <motion.div
+                ref={ref}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
+                style={{
+                    rotateX,
+                    rotateY,
+                    transformStyle: "preserve-3d",
+                }}
                 className={cn(
                     "relative mx-auto flex aspect-[3/4] w-full max-w-xs items-center justify-center",
-                    "overflow-hidden rounded-2xl border border-forest/8 bg-cream-dark/30"
+                    "overflow-hidden rounded-2xl border border-forest/8 bg-cream-dark/30 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] transition-shadow duration-300 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)]"
                 )}
             >
                 {/* Layer 1: Wrapping (background) */}
@@ -49,49 +87,50 @@ export function LayeredPreview() {
                             animate="visible"
                             exit="exit"
                             className="absolute inset-0 z-0"
-                            style={{ backgroundColor: WRAP_MAP[wrap]?.color }}
+                            style={{ backgroundColor: WRAP_MAP[wrap]?.color, transform: "translateZ(0px)" }}
                         />
                     )}
                 </AnimatePresence>
 
-                {/* Layer 2: Flower color (center circle) */}
+                {/* Layer 2: Flower (center) */}
                 <AnimatePresence mode="wait">
-                    {color && (
+                    {flower && (
                         <motion.div
                             key={`color-${color}`}
                             variants={layerSwap}
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="absolute z-10 flex h-32 w-32 items-center justify-center rounded-full"
-                            style={{ backgroundColor: COLOR_MAP[color] || "#ccc" }}
+                            className="absolute inset-0 z-10"
+                            style={{ transform: "translateZ(10px)" }}
                         >
-                            <span className="text-5xl">
-                                {flower === "mawar" && "🌹"}
-                                {flower === "tulip" && "🌷"}
-                                {flower === "hydrangea" && "💐"}
-                                {flower === "lily" && "🌸"}
-                                {flower === "daisy" && "🌼"}
-                                {!flower && "🌿"}
-                            </span>
+                            <Image
+                                src={`/images/layers/flower-${flower}.png`}
+                                alt={flower}
+                                fill
+                                className="object-cover"
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Empty state */}
                 {!flower && !color && !wrap && (
-                    <div className="text-center">
-                        <span className="text-4xl">🌿</span>
+                    <div className="text-center" style={{ transform: "translateZ(20px)" }}>
+                        <span className="text-4xl drop-shadow-xl">🌿</span>
                         <p className="mt-2 font-body text-sm text-forest/50">
                             Preview akan muncul di sini
                         </p>
                     </div>
                 )}
 
-                {/* Label overlay */}
+                {/* Label overlay (Floats highest) */}
                 {(flower || color || wrap) && (
-                    <div className="absolute bottom-3 left-3 right-3 z-20 rounded-lg bg-white/80 p-2 backdrop-blur-sm">
-                        <p className="font-body text-xs text-forest/70 text-center">
+                    <div
+                        className="absolute bottom-4 left-4 right-4 z-20 rounded-xl bg-white/90 p-3 backdrop-blur-md shadow-lg border border-white/50"
+                        style={{ transform: "translateZ(40px)" }}
+                    >
+                        <p className="font-body text-xs font-bold uppercase tracking-widest text-forest text-center">
                             {[
                                 flower && `${flower.charAt(0).toUpperCase()}${flower.slice(1)}`,
                                 color && `${color}`,
@@ -102,7 +141,7 @@ export function LayeredPreview() {
                         </p>
                     </div>
                 )}
-            </div>
+            </motion.div>
         </div>
     );
 }

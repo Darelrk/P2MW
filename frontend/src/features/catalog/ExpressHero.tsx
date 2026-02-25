@@ -43,35 +43,27 @@ export function ExpressHero() {
                 <div className="flex flex-col items-start gap-6 md:flex-row md:items-end md:justify-between">
                     {/* Left: Title */}
                     <div>
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="inline-flex items-center gap-2 rounded-full bg-red/20 px-4 py-1.5 mb-4"
-                        >
+                        <div className="inline-flex items-center gap-2 rounded-full bg-red/20 px-4 py-1.5 mb-4 animate-fade-up">
                             <Zap className="h-4 w-4 text-red" />
                             <span className="font-body text-xs font-bold uppercase tracking-widest text-red">
                                 Ekspres 3 Jam
                             </span>
-                        </motion.div>
+                        </div>
 
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="font-display text-4xl font-bold text-cream md:text-5xl lg:text-6xl leading-tight"
+                        <h1
+                            className="font-display text-4xl font-bold text-cream md:text-5xl lg:text-6xl leading-tight animate-fade-up"
+                            style={{ animationDelay: '100ms' }}
                         >
                             Koleksi <br />
                             <span className="text-blush">Cepat</span>
-                        </motion.h1>
+                        </h1>
 
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-4 max-w-md font-body text-base text-cream/60"
+                        <p
+                            className="mt-4 max-w-md font-body text-base text-cream/60 animate-fade-up"
+                            style={{ animationDelay: '200ms' }}
                         >
                             Buket rajutan premium. Tersedia dan siap dikirim dalam 3 jam.
-                        </motion.p>
+                        </p>
                     </div>
 
                     {/* Right: Feature chips */}

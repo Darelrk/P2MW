@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBouquetStore, type FlowerType, type FlowerColor, type WrapStyle } from "./store";
+import { useCartStore } from "@/store/useCartStore";
 import { stepperSlide } from "@/lib/animations";
 import { cn } from "@/lib/cn";
 
@@ -196,12 +197,43 @@ export function StepContent() {
                     </button>
                 ) : (
                     <button
+                        onClick={() => {
+                            if (!flower || !color || !wrap) return;
+
+                            // Using a fixed placeholder price for custom bouquets.
+                            const customPrice = 350000;
+
+                            const { addItem } = useCartStore.getState();
+
+                            addItem({
+                                id: `custom-${Date.now()}`,
+                                type: "custom",
+                                name: "Buket Rakitan Sendiri",
+                                price: customPrice,
+                                customDetails: {
+                                    flower,
+                                    color,
+                                    wrap,
+                                    message,
+                                }
+                            });
+
+                            import("sonner").then(({ toast }) => {
+                                toast.success("Karya Anda berhasil disimpan", {
+                                    description: "Buket Rakitan Sendiri telah masuk ke keranjang belanja Anda.",
+                                    icon: "✨"
+                                });
+                            });
+
+                            // Reset builder
+                            useBouquetStore.getState().reset();
+                        }}
                         className={cn(
                             "rounded-lg bg-terracotta px-6 py-2.5 font-body text-sm font-bold text-white transition-all",
                             "hover:brightness-110"
                         )}
                     >
-                        Checkout
+                        Pesan Sekarang
                     </button>
                 )}
             </div>
