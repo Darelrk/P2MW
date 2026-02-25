@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 
 const WHATSAPP_NUMBER = "6281234567890"; // TODO: Replace with actual number
 const WHATSAPP_MESSAGE = encodeURIComponent(
-    "Halo P2MW! Saya ingin konsultasi tentang buket custom."
+    "Halo AMOUREA! Saya ingin konsultasi tentang buket custom."
 );
 
 /**

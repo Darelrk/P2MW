@@ -6,15 +6,17 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-display",
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-body",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "P2MW Bouquet - Rangkai Kenangan Manismu",
+  title: "AMOUREA Bouquet - Rangkai Kenangan Manismu",
   description: "Buket rajut premium untuk setiap momen spesial. Beli buket ekspres atau rakit sendiri gaya unikmu.",
   icons: {
     icon: "/favicon.ico",
@@ -46,11 +48,13 @@ export default function RootLayout({
         <SlideOutCart />
         <Toaster position="top-center" toastOptions={{
           style: {
-            background: 'var(--color-cream)',
-            color: 'var(--color-forest)',
-            borderColor: 'rgba(61, 79, 61, 0.1)',
+            background: 'rgba(34, 48, 38, 0.95)', // Forest dark with slight transparency
+            backdropFilter: 'blur(12px)',
+            color: '#F5EEDC', // Cream text
+            border: '1px solid rgba(245, 238, 220, 0.1)',
             fontFamily: 'var(--font-body)',
-            boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)',
+            boxShadow: '0 20px 40px -20px rgba(0,0,0,0.4)',
+            borderRadius: '1rem',
           },
         }} />
       </body>

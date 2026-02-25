@@ -1,7 +1,7 @@
 import type { Variants } from "framer-motion";
 
 /**
- * Reusable Framer Motion variant presets for P2MW Bouquet.
+ * Reusable Framer Motion variant presets for AMOUREA Bouquet.
  * All durations & easings follow animation_plan.md specs.
  */
 

@@ -12,6 +12,7 @@ export function InteractiveReceipt() {
     const [orderId, setOrderId] = useState("");
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
         setMounted(true);
         // Fix for impure function in render:
         setOrderId(String(Math.floor(Math.random() * 9000) + 1000));
@@ -55,7 +56,7 @@ export function InteractiveReceipt() {
                 className="bg-white px-8 pb-12 pt-6 font-mono text-sm uppercase text-forest/80 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.15)] origin-top overflow-hidden border-x border-forest/5"
             >
                 <div className="text-center mb-8 border-b-2 border-dashed border-forest/20 pb-6">
-                    <h2 className="font-display font-bold text-2xl tracking-widest text-forest">P2MW BOUQUET</h2>
+                    <h2 className="font-display font-bold text-2xl tracking-widest text-forest">AMOUREA BOUQUET</h2>
                     <p className="text-xs mt-2 font-mono">ID Pesanan: #{orderId}</p>
                     <p className="text-xs font-mono">{new Date().toLocaleDateString('id-ID')}</p>
                 </div>

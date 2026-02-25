@@ -76,7 +76,7 @@ export const useBouquetStore = create<BouquetState>()(
             reset: () => set(INITIAL_STATE),
         }),
         {
-            name: "p2mw-bouquet-builder",
+            name: "AMOUREA-bouquet-builder",
         }
     )
 );

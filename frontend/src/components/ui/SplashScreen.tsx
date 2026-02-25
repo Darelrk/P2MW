@@ -8,9 +8,9 @@ export function SplashScreen() {
 
     useEffect(() => {
         // Cek jika splash screen sudah pernah muncul di sesi ini
-        const hasSeenSplash = sessionStorage.getItem("p2mw_splash_seen");
+        const hasSeenSplash = sessionStorage.getItem("AMOUREA_splash_seen");
         if (hasSeenSplash) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
+            // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
             setIsVisible(false);
             return;
         }
@@ -18,7 +18,7 @@ export function SplashScreen() {
         // Jalankan timer untuk menutup splash screen setelah presentasi selesai
         const timer = setTimeout(() => {
             setIsVisible(false);
-            sessionStorage.setItem("p2mw_splash_seen", "true");
+            sessionStorage.setItem("AMOUREA_splash_seen", "true");
         }, 2600);
 
         return () => clearTimeout(timer);
@@ -26,7 +26,7 @@ export function SplashScreen() {
 
     // Hindari hydration mismatch saat SSR
     const [mounted, setMounted] = useState(false);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
     useEffect(() => setMounted(true), []);
     if (!mounted) return null;
 
@@ -76,7 +76,7 @@ export function SplashScreen() {
                                 transition={{ delay: 1.0, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                                 className="font-display text-5xl font-bold tracking-tighter"
                             >
-                                P2MW<span className="text-blush">.</span>
+                                AMOUREA<span className="text-blush">.</span>
                             </motion.div>
                         </div>
 

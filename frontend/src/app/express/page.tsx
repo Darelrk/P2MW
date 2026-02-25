@@ -6,7 +6,7 @@ import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 
 export const metadata = {
-    title: "Koleksi Cepat — P2MW Bouquet",
+    title: "Koleksi Cepat — AMOUREA Bouquet",
     description: "Buket rajutan yang jadi dalam 3 jam. Pesan sekarang!",
 };
 

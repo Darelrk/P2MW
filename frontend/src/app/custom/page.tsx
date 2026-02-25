@@ -4,7 +4,7 @@ import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 
 export const metadata = {
-    title: "Rakit Sendiri — P2MW Bouquet",
+    title: "Rakit Sendiri — AMOUREA Bouquet",
     description:
         "Rakit buketmu sendiri langkah demi langkah. Pilih bunga, warna, wrapping, dan kartu ucapan.",
 };

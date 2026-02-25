@@ -163,6 +163,7 @@ function CardContent({ card, isActive, shineX, shineY }: CardContentProps) {
                 className="object-cover"
                 priority={isActive}
                 sizes="(max-width: 768px) 224px, 272px"
+                quality={65}
             />
 
             {/* Gradient vignette */}

@@ -89,7 +89,7 @@ function HeroHeadline() {
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/20 px-4 py-1.5 backdrop-blur-md">
                 <Sparkles className="h-3.5 w-3.5 text-blush" />
                 <span className="font-body text-xs font-semibold tracking-wider text-white">
-                    RAJUTAN TANGAN PREMIUM
+                    ETERNAL LOVE CRAFT
                 </span>
             </div>
             <h1 className="font-display text-4xl leading-[1.08] tracking-tight text-white md:text-5xl lg:text-6xl">
@@ -97,8 +97,8 @@ function HeroHeadline() {
                 <br />
                 <span className="text-blush drop-shadow-[0_2px_8px_rgba(232,160,191,0.5)]">Tak Layu</span>
             </h1>
-            <p className="mt-5 max-w-md font-body text-base leading-relaxed text-white">
-                Rajutan tangan premium. Bebas debu, anti alergi, dan abadi.
+            <p className="mt-5 max-w-md font-body text-base leading-relaxed text-white/90">
+                Rajutan tangan premium yang bisa di-custom, abadi, dan hadir tepat waktu untuk momen spesialmu.
             </p>
         </div>
     );

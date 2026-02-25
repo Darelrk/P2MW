@@ -102,6 +102,8 @@ export function LayeredPreview() {
                                 alt={flower}
                                 fill
                                 className="object-cover"
+                                sizes="(max-width: 640px) 70vw, 30vw"
+                                quality={65}
                             />
                         </motion.div>
                     )}

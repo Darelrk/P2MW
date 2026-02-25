@@ -75,7 +75,7 @@ export const useCartStore = create<CartState>()(
             clearCart: () => set({ items: [] }),
         }),
         {
-            name: "p2mw-cart-storage",
+            name: "AMOUREA-cart-storage",
         }
     )
 );

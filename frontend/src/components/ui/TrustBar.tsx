@@ -12,7 +12,7 @@ export function TrustBar() {
 
             <div className="mx-auto max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-min">
-                    {/* Hero Bento Item (Takes 2 cols on md) */}
+                    {/* Hero Bento Item (Takes 2 cols on md): Custom & Durable */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -20,15 +20,15 @@ export function TrustBar() {
                         className="glass-premium md:col-span-2 p-8 rounded-[2.5rem] flex flex-col justify-end min-h-[220px]"
                     >
                         <h3 className="font-display text-3xl font-bold text-forest leading-tight">
-                            Kualitas Premium <br />
-                            <span className="text-blush">Tanpa Takut Layu.</span>
+                            Personal & Abadi. <br />
+                            <span className="text-blush">Kustomisasi Penuh.</span>
                         </h3>
                         <p className="mt-4 font-body text-base text-forest/60 max-w-sm">
-                            Setiap kelopak dirajut dengan tangan menggunakan benang kualitas terbaik untuk keindahan abadi.
+                            Pilih warna, jenis bunga rajut, dan kartu pesan. Hadiah emosional yang tak akan pernah layu (Eternal Love Craft).
                         </p>
                     </motion.div>
 
-                    {/* Bento Item 1: Rajutan Tangan */}
+                    {/* Bento Item 1: Fast Service */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -37,13 +37,13 @@ export function TrustBar() {
                         className="bg-blush/10 p-8 rounded-[2.5rem] flex flex-col justify-center items-center text-center shadow-lg hover:shadow-xl transition-shadow border border-blush/20"
                     >
                         <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center shadow-md mb-4 text-blush">
-                            <HandHeart className="h-8 w-8" />
+                            <Clock className="h-8 w-8" />
                         </div>
-                        <h4 className="font-display text-xl font-bold text-forest">100% Handmade</h4>
-                        <p className="mt-2 font-body text-sm text-forest/70">Dibuat penuh dedikasi</p>
+                        <h4 className="font-display text-xl font-bold text-forest">Fast Service</h4>
+                        <p className="mt-2 font-body text-sm text-forest/70">Waktu respons admin &lt;5 menit & opsi kilat 3 jam.</p>
                     </motion.div>
 
-                    {/* Bento Item 2: Jabodetabek */}
+                    {/* Bento Item 2: Aesthetic Packaging */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -52,10 +52,10 @@ export function TrustBar() {
                         className="bg-forest/5 p-8 rounded-[2.5rem] flex flex-col justify-center items-center text-center border border-forest/10"
                     >
                         <div className="h-16 w-16 bg-forest text-cream rounded-2xl flex items-center justify-center shadow-md mb-4">
-                            <Clock className="h-8 w-8" />
+                            <HandHeart className="h-8 w-8" />
                         </div>
-                        <h4 className="font-display text-xl font-bold text-forest">Jadi dalam 3 Jam</h4>
-                        <p className="mt-2 font-body text-sm text-forest/70">Proses cepat & berkualitas</p>
+                        <h4 className="font-display text-xl font-bold text-forest">Premium Wrap</h4>
+                        <p className="mt-2 font-body text-sm text-forest/70">Kraft paper elegan, pita satin, & thank you card.</p>
                     </motion.div>
 
                 </div>

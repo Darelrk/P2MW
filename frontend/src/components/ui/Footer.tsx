@@ -8,7 +8,7 @@ export function Footer() {
         <footer className="relative overflow-hidden bg-forest pt-32 pb-12 px-4 md:px-8">
             {/* Mega Watermark Background */}
             <div className="watermark-text absolute -bottom-10 -left-10 z-0 text-white/[0.03] select-none whitespace-nowrap">
-                P2MW BOUQUET
+                AMOUREA BOUQUET
             </div>
 
             <div className="mx-auto max-w-7xl relative z-10">
@@ -17,7 +17,7 @@ export function Footer() {
                     <div className="md:col-span-5 flex flex-col justify-between">
                         <div>
                             <h3 className="font-display text-4xl font-bold text-cream">
-                                P2MW<span className="text-blush">.</span>
+                                AMOUREA<span className="text-blush">.</span>
                             </h3>
                             <p className="mt-6 max-w-sm font-body text-lg leading-relaxed text-cream/70">
                                 Merajut kenangan dalam setiap simpul. Koleksi bunga rajutan premium yang dirancang untuk keindahan abadi.
@@ -99,7 +99,7 @@ export function Footer() {
                 <div className="mt-32 flex flex-col items-center justify-between border-t border-white/5 pt-12 md:flex-row gap-8">
                     <div className="flex items-center gap-4">
                         <p className="font-body text-xs text-cream/30 uppercase tracking-[0.2em]">
-                            © 2026 P2MW Bouquet
+                            © 2026 AMOUREA Bouquet
                         </p>
                         <div className="h-1 w-1 rounded-full bg-white/10" />
                         <p className="font-body text-xs text-cream/30 flex items-center gap-1.5">

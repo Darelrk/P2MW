@@ -27,7 +27,7 @@ export function FlowerConfetti({ active }: { active: boolean }) {
                 delay: Math.random() * 2,
                 rotation: 360 * (Math.random() > 0.5 ? 1 : -1)
             }));
-            // eslint-disable-next-line react-hooks/set-state-in-effect
+            // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
             setPetals(newPetals);
 
             // Auto-cleanup after 5s

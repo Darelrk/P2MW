@@ -46,7 +46,7 @@ export function Navbar() {
                     whileTap="tap"
                     className="font-display text-2xl font-bold text-cream"
                 >
-                    P2MW<span className="text-blush">.</span>
+                    AMOUREA<span className="text-blush">.</span>
                 </motion.a>
 
                 {/* Desktop Links */}

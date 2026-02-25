@@ -62,7 +62,8 @@ export function ProductCard({
                     alt={name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 640px) 100vw, 33vw"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    quality={65}
                 />
 
                 {/* Overlay Gradient */}
@@ -103,7 +104,10 @@ export function ProductCard({
                         <h3 className="font-display text-xl font-bold text-forest truncate">
                             {name}
                         </h3>
-                        <p className="mt-1 font-body text-base font-bold text-terracotta">
+                        <p className="mt-1 font-body text-xs text-forest/50">
+                            Cotton Milk / Katun Combed + Premium Wrap
+                        </p>
+                        <p className="mt-2 font-body text-lg font-bold text-terracotta">
                             {price}
                         </p>
                     </div>
