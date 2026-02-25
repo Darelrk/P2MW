@@ -64,6 +64,7 @@ export function ProductCard({
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     quality={65}
+                    unoptimized={true}
                 />
 
                 {/* Overlay Gradient */}

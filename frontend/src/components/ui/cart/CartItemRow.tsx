@@ -21,7 +21,7 @@ export function CartItemRow({ item, onUpdateQuantity, onRemoveItem }: CartItemRo
         >
             <div className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-forest/5 border border-forest/10 flex items-center justify-center">
                 {item.image ? (
-                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                    <Image src={item.image} alt={item.name} fill className="object-cover" unoptimized={true} />
                 ) : (
                     <span className="text-3xl">💐</span>
                 )}
