@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useCartStore } from "@/store/useCartStore";
 import { useEffect, useState } from "react";
 
@@ -23,7 +23,7 @@ export function InteractiveReceipt() {
     const tax = totalPrice * 0.11; // PPN 11%
     const grandTotal = totalPrice + tax;
 
-    const receiptVariants = {
+    const receiptVariants: Variants = {
         hidden: { height: 0, opacity: 0 },
         visible: {
             height: "auto",
@@ -37,7 +37,7 @@ export function InteractiveReceipt() {
         }
     };
 
-    const rowVariants = {
+    const rowVariants: Variants = {
         hidden: { opacity: 0, y: 10 },
         visible: { opacity: 1, y: 0 }
     };
