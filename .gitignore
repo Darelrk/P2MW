@@ -38,3 +38,7 @@ next-env.d.ts
 
 # Antigravity/Gemini specific
 .gemini/
+
+# User exclusions
+Content/
+Amouera.pdf

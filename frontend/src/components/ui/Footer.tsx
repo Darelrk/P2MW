@@ -2,6 +2,7 @@
 
 import { Instagram, Twitter, Mail, Heart, Send } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export function Footer() {
     return (
@@ -16,9 +17,14 @@ export function Footer() {
                     {/* Brand & Narrative (Asymmetric: 5 cols) */}
                     <div className="md:col-span-5 flex flex-col justify-between">
                         <div>
-                            <h3 className="font-display text-4xl font-bold text-cream">
-                                AMOUREA<span className="text-blush">.</span>
-                            </h3>
+                            <div className="relative w-48 h-12 md:w-56 md:h-14 flex items-center mb-4 overflow-hidden">
+                                <Image
+                                    src="/logo.svg"
+                                    alt="AMOUREA Logo"
+                                    fill
+                                    className="object-cover object-left"
+                                />
+                            </div>
                             <p className="mt-6 max-w-sm font-body text-lg leading-relaxed text-cream/70">
                                 Merajut kenangan dalam setiap simpul. Koleksi bunga rajutan premium yang dirancang untuk keindahan abadi.
                             </p>

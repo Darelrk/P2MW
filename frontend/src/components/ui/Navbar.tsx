@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ShoppingBag } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/cn";
 import { scaleOnTap } from "@/lib/animations";
 import { useCartStore } from "@/store/useCartStore";
@@ -44,9 +45,15 @@ export function Navbar() {
                     href="/"
                     variants={scaleOnTap}
                     whileTap="tap"
-                    className="font-display text-2xl font-bold text-cream"
+                    className="relative w-40 h-10 md:w-48 md:h-12 flex items-center overflow-hidden"
                 >
-                    AMOUREA<span className="text-blush">.</span>
+                    <Image
+                        src="/logo.svg"
+                        alt="AMOUREA Logo"
+                        fill
+                        className="object-cover object-left"
+                        priority
+                    />
                 </motion.a>
 
                 {/* Desktop Links */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 export function SplashScreen() {
     const [isVisible, setIsVisible] = useState(true);
@@ -74,9 +75,15 @@ export function SplashScreen() {
                                 initial={{ y: "100%" }}
                                 animate={{ y: 0 }}
                                 transition={{ delay: 1.0, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                                className="font-display text-5xl font-bold tracking-tighter"
+                                className="relative w-64 h-16 md:w-80 md:h-20 flex items-center mx-auto overflow-hidden"
                             >
-                                AMOUREA<span className="text-blush">.</span>
+                                <Image
+                                    src="/logo.svg"
+                                    alt="AMOUREA Logo"
+                                    fill
+                                    className="object-cover object-center scale-125 origin-center"
+                                    priority
+                                />
                             </motion.div>
                         </div>
 
