@@ -1,13 +1,15 @@
 import { db } from '@/db'
 import { products } from '@/db/schema'
-import { desc } from 'drizzle-orm'
+import { desc, InferSelectModel } from 'drizzle-orm'
 import ProductsClient from './ProductsClient'
 
 export const dynamic = 'force-dynamic'
 
+type Product = InferSelectModel<typeof products>;
+
 export default async function AdminProductsPage() {
     // Fetch products sorted by newest first
-    const items = await db.select().from(products).orderBy(desc(products.createdAt))
+    const items = await db.select().from(products).orderBy(desc(products.createdAt)) as Product[];
 
     return (
         <div className="space-y-6">

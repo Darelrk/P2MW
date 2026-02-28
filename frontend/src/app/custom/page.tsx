@@ -4,7 +4,7 @@ import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { db } from "@/db";
 import { builderOptions } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, InferSelectModel } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -14,9 +14,11 @@ export const metadata = {
         "Rakit buketmu sendiri langkah demi langkah. Pilih bunga, warna, wrapping, dan kartu ucapan.",
 };
 
+type BuilderOption = InferSelectModel<typeof builderOptions>;
+
 export default async function CustomPage() {
     // Fetch configuration from DB based on availability
-    const dbOptions = await db.select().from(builderOptions).where(eq(builderOptions.isAvailable, true));
+    const dbOptions = await db.select().from(builderOptions).where(eq(builderOptions.isAvailable, true)) as BuilderOption[];
 
     return (
         <>
@@ -39,7 +41,7 @@ export default async function CustomPage() {
                 </div>
 
                 {/* Builder */}
-                <CustomBuilder initialOptions={dbOptions} />
+                <CustomBuilder initialOptions={dbOptions as any} />
             </main>
             <Footer />
             <FloatingActionButton />

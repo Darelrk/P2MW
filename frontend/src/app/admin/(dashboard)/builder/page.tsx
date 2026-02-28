@@ -1,13 +1,15 @@
 import { db } from '@/db'
 import { builderOptions } from '@/db/schema'
-import { desc } from 'drizzle-orm'
+import { desc, InferSelectModel } from 'drizzle-orm'
 import BuilderClient from './BuilderClient'
 
 export const dynamic = 'force-dynamic'
 
+type BuilderOption = InferSelectModel<typeof builderOptions>;
+
 export default async function AdminBuilderPage() {
     // Fetch options sorted by newest first
-    const items = await db.select().from(builderOptions).orderBy(desc(builderOptions.createdAt))
+    const items = await db.select().from(builderOptions).orderBy(desc(builderOptions.createdAt)) as BuilderOption[];
 
     return (
         <div className="space-y-6">
