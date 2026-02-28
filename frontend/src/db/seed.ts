@@ -121,6 +121,11 @@ const customOptions = [
 ];
 
 async function main() {
+    if (!db || !client) {
+        console.warn("⚠️ Database initialization failed. Skipping seed.");
+        return;
+    }
+
     console.log("🌱 Seeding database...");
 
     try {
@@ -149,7 +154,7 @@ async function main() {
         process.exit(1);
     } finally {
         console.log("🏁 Closing database connection...");
-        await client.end();
+        if (client) await client.end();
         console.log("👋 Seeding complete!");
     }
 }
