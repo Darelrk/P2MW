@@ -6,6 +6,8 @@ import { db } from "@/db";
 import { builderOptions } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
     title: "Rakit Sendiri — AMOUREA Bouquet",
     description:

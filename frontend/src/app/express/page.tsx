@@ -7,6 +7,8 @@ import { db } from "@/db";
 import { products } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
     title: "Koleksi Cepat — AMOUREA Bouquet",
     description: "Buket rajutan yang jadi dalam 3 jam. Pesan sekarang!",
