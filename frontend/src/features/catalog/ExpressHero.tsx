@@ -74,7 +74,6 @@ export function ExpressHero() {
                         className="flex flex-wrap gap-3"
                     >
                         <FeatureChip icon={<Clock className="h-4 w-4" />} label="Jadi 3 Jam" />
-                        <FeatureChip icon={<Zap className="h-4 w-4" />} label="Cutoff 17:00" />
                         <FeatureChip icon={<Truck className="h-4 w-4" />} label="6 Pilihan" />
                     </motion.div>
                 </div>

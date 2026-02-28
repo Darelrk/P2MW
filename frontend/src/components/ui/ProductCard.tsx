@@ -1,7 +1,9 @@
 "use client";
 
+import React, { memo } from "react";
+
 import { motion } from "framer-motion";
-import { Zap, ArrowRight, Heart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import { cn } from "@/lib/cn";
@@ -12,19 +14,23 @@ interface ProductCardProps {
     name: string;
     price: string;
     image: string;
+    description?: string | null;
     stock: number;
     isExpress?: boolean;
+    priority?: boolean;
 }
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCard({
     name,
     price,
     image,
+    description,
     stock,
     isExpress = false,
+    priority = false,
 }: ProductCardProps) {
     const lowStock = stock <= 3;
-    const { addItem } = useCartStore();
+    const addItem = useCartStore(state => state.addItem);
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -64,7 +70,7 @@ export function ProductCard({
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     quality={65}
-                    unoptimized={true}
+                    priority={priority}
                 />
 
                 {/* Overlay Gradient */}
@@ -72,30 +78,8 @@ export function ProductCard({
 
                 {/* Badges */}
                 <div className="absolute left-4 top-4 flex flex-col gap-2">
-                    {lowStock && (
-                        <span className="rounded-full bg-red px-3 py-1 font-body text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
-                            Sisa {stock}!
-                        </span>
-                    )}
                 </div>
 
-                {isExpress && (
-                    <div className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-forest/90 px-3 py-1 font-body text-[10px] font-bold text-cream backdrop-blur-md shadow-lg">
-                        <Zap className="h-3 w-3 text-blush" />
-                        <span>3 Jam</span>
-                    </div>
-                )}
-
-                {/* Wishlist Button */}
-                <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    className={cn(
-                        "absolute right-4 bottom-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-forest backdrop-blur-sm transition-all duration-300 hover:bg-white hover:text-red",
-                        "opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                    )}
-                >
-                    <Heart className="h-5 w-5" />
-                </motion.button>
             </div>
 
             {/* Content */}
@@ -105,8 +89,8 @@ export function ProductCard({
                         <h3 className="font-display text-xl font-bold text-forest truncate">
                             {name}
                         </h3>
-                        <p className="mt-1 font-body text-xs text-forest/50">
-                            Cotton Milk / Katun Combed + Premium Wrap
+                        <p className="mt-1 font-body text-xs text-forest/50 line-clamp-2 min-h-[2rem]">
+                            {description || "Cotton Milk / Katun Combed + Premium Wrap"}
                         </p>
                         <p className="mt-2 font-body text-lg font-bold text-terracotta">
                             {price}
@@ -153,4 +137,11 @@ export function ProductCard({
             </div>
         </motion.article>
     );
-}
+}, (prevProps: ProductCardProps, nextProps: ProductCardProps) => {
+    // Custom comparison to prevent re-renders if only functions or unchanged primitives differ
+    return prevProps.name === nextProps.name &&
+        prevProps.price === nextProps.price &&
+        prevProps.stock === nextProps.stock &&
+        prevProps.image === nextProps.image &&
+        prevProps.priority === nextProps.priority;
+});

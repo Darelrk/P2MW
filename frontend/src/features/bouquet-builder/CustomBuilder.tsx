@@ -4,12 +4,32 @@ import { ProgressStepper } from "@/features/bouquet-builder/ProgressStepper";
 import { StepContent } from "@/features/bouquet-builder/StepContent";
 import { LayeredPreview } from "@/features/bouquet-builder/LayeredPreview";
 import { MoodSelector } from "@/features/bouquet-builder/MoodSelector";
+import { useEffect, useState } from "react";
+import { BuilderOption, useBouquetStore } from "./store";
+
+interface CustomBuilderProps {
+    initialOptions: BuilderOption[];
+}
 
 /**
  * CustomBuilder — Premium builder page with mood selector onboarding.
  * Left: mood selector + step content. Right (sticky): layered visual preview.
  */
-export function CustomBuilder() {
+export function CustomBuilder({ initialOptions }: CustomBuilderProps) {
+    const initOptions = useBouquetStore((state) => state.initOptions);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        if (initialOptions && initialOptions.length > 0) {
+            initOptions(initialOptions);
+        }
+    }, [initialOptions, initOptions]);
+
+    if (!isMounted) {
+        return <div className="min-h-[600px] flex items-center justify-center text-forest/50">Memuat Builder...</div>;
+    }
+
     return (
         <div>
             {/* Mood Selector — Onboarding */}

@@ -20,6 +20,14 @@ export const STEP_LABELS = [
     "Kartu Ucapan",
 ] as const;
 
+export interface BuilderOption {
+    id: string;
+    category: "flower" | "color" | "wrapper" | string;
+    name: string;
+    isAvailable: boolean;
+    priceAdjustment: number;
+}
+
 interface BouquetState {
     /** Current step (0-3) */
     step: BuilderStep;
@@ -32,6 +40,10 @@ interface BouquetState {
     /** Greeting card message */
     message: string;
 
+    /** Database Options */
+    dbOptions: BuilderOption[];
+    isInitialized: boolean;
+
     /** Actions */
     setStep: (step: BuilderStep) => void;
     nextStep: () => void;
@@ -41,6 +53,7 @@ interface BouquetState {
     setWrap: (wrap: WrapStyle) => void;
     setMessage: (msg: string) => void;
     reset: () => void;
+    initOptions: (options: BuilderOption[]) => void;
 }
 
 const INITIAL_STATE = {
@@ -49,6 +62,8 @@ const INITIAL_STATE = {
     color: null,
     wrap: null,
     message: "",
+    dbOptions: [],
+    isInitialized: false,
 };
 
 /**
@@ -73,7 +88,14 @@ export const useBouquetStore = create<BouquetState>()(
             setColor: (color) => set({ color }),
             setWrap: (wrap) => set({ wrap }),
             setMessage: (msg) => set({ message: msg }),
-            reset: () => set(INITIAL_STATE),
+            reset: () => set({
+                step: 0,
+                flower: null,
+                color: null,
+                wrap: null,
+                message: "",
+            }),
+            initOptions: (options) => set({ dbOptions: options, isInitialized: true }),
         }),
         {
             name: "AMOUREA-bouquet-builder",

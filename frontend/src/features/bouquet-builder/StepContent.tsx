@@ -1,33 +1,34 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBouquetStore, type FlowerType, type FlowerColor, type WrapStyle } from "./store";
+import { useShallow } from "zustand/react/shallow";
 import { useCartStore } from "@/store/useCartStore";
 import { stepperSlide } from "@/lib/animations";
 import { cn } from "@/lib/cn";
 
-/** Option data for each step */
-const FLOWERS: { value: FlowerType; label: string; emoji: string }[] = [
-    { value: "mawar", label: "Mawar", emoji: "🌹" },
-    { value: "tulip", label: "Tulip", emoji: "🌷" },
-    { value: "hydrangea", label: "Hydrangea", emoji: "💐" },
-    { value: "lily", label: "Lily", emoji: "🌸" },
-    { value: "daisy", label: "Daisy", emoji: "🌼" },
-];
+// Helper mapping for emojis and hex colors for UI
+const FLOWER_EMOJIS: Record<string, string> = {
+    mawar: "🌹",
+    tulip: "🌷",
+    hydrangea: "💐",
+    lily: "🌸",
+    daisy: "🌼",
+};
 
-const COLORS: { value: FlowerColor; label: string; hex: string }[] = [
-    { value: "merah", label: "Merah", hex: "#C94C4C" },
-    { value: "pink", label: "Pink", hex: "#E8A0BF" },
-    { value: "putih", label: "Putih", hex: "#FEFCFA" },
-    { value: "kuning", label: "Kuning", hex: "#D4A574" },
-    { value: "ungu", label: "Ungu", hex: "#9B59B6" },
-];
+const COLOR_HEX: Record<string, string> = {
+    merah: "#C94C4C",
+    pink: "#E8A0BF",
+    putih: "#FEFCFA",
+    kuning: "#D4A574",
+    ungu: "#9B59B6",
+};
 
-const WRAPS: { value: WrapStyle; label: string; desc: string }[] = [
-    { value: "kraft", label: "Kraft Paper", desc: "Klasik & ramah lingkungan" },
-    { value: "satin", label: "Satin Wrap", desc: "Halus & mewah" },
-    { value: "organza", label: "Organza Sheer", desc: "Transparan & elegan" },
-    { value: "burlap", label: "Burlap Rustic", desc: "Unik & natural" },
-];
+const WRAP_DESC: Record<string, string> = {
+    kraft: "Klasik & ramah lingkungan",
+    satin: "Halus & mewah",
+    organza: "Transparan & elegan",
+    burlap: "Unik & natural",
+};
 
 /**
  * StepContent — Renders the correct option panel based on current step.
@@ -36,9 +37,17 @@ const WRAPS: { value: WrapStyle; label: string; desc: string }[] = [
 import { FlowerConfetti } from "./FlowerConfetti";
 
 export function StepContent() {
-    const { step, flower, color, wrap, message,
+    const { step, flower, color, wrap, message, dbOptions,
         setFlower, setColor, setWrap, setMessage,
-        nextStep, prevStep } = useBouquetStore();
+        nextStep, prevStep } = useBouquetStore(useShallow(state => ({
+            step: state.step, dbOptions: state.dbOptions, flower: state.flower, color: state.color, wrap: state.wrap, message: state.message,
+            setFlower: state.setFlower, setColor: state.setColor, setWrap: state.setWrap, setMessage: state.setMessage, nextStep: state.nextStep, prevStep: state.prevStep
+        })));
+
+    // Derived filtered arrays from DB
+    const flowersDb = dbOptions.filter(opt => opt.category === "flower");
+    const colorsDb = dbOptions.filter(opt => opt.category === "color");
+    const wrapsDb = dbOptions.filter(opt => opt.category === "wrapper");
 
     // Trigger confetti when reaching step 3 (Greeting Card)
     const [showConfetti, setShowConfetti] = useState(false);
@@ -66,21 +75,26 @@ export function StepContent() {
                         <div>
                             <h3 className="mb-4 font-display text-xl text-forest">Pilih Jenis Bunga</h3>
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                {FLOWERS.map((f) => (
+                                {flowersDb.map((f) => (
                                     <button
-                                        key={f.value}
-                                        onClick={() => setFlower(f.value)}
+                                        key={f.name}
+                                        onClick={() => setFlower(f.name as FlowerType)}
                                         className={cn(
-                                            "flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-150",
-                                            flower === f.value
+                                            "flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-150 relative",
+                                            flower === f.name
                                                 ? "border-forest bg-forest/5 scale-[1.02]"
                                                 : "border-transparent bg-cream-dark/50 hover:border-forest/20"
                                         )}
                                     >
-                                        <span className="text-3xl">{f.emoji}</span>
-                                        <span className="font-body text-sm font-medium text-forest">
-                                            {f.label}
+                                        <span className="text-3xl">{FLOWER_EMOJIS[f.name.toLowerCase()] || "🌸"}</span>
+                                        <span className="font-body text-sm font-medium text-forest capitalize">
+                                            {f.name}
                                         </span>
+                                        {f.priceAdjustment > 0 && (
+                                            <span className="text-[10px] text-forest/50 absolute bottom-1 right-2">
+                                                +Rp{f.priceAdjustment / 1000}k
+                                            </span>
+                                        )}
                                     </button>
                                 ))}
                             </div>
@@ -91,25 +105,30 @@ export function StepContent() {
                         <div>
                             <h3 className="mb-4 font-display text-xl text-forest">Pilih Warna</h3>
                             <div className="flex flex-wrap gap-3">
-                                {COLORS.map((c) => (
+                                {colorsDb.map((c) => (
                                     <button
-                                        key={c.value}
-                                        onClick={() => setColor(c.value)}
+                                        key={c.name}
+                                        onClick={() => setColor(c.name as FlowerColor)}
                                         className={cn(
-                                            "group flex flex-col items-center gap-2 rounded-lg p-3 transition-all duration-150",
-                                            color === c.value && "scale-[1.05]"
+                                            "group flex flex-col items-center gap-2 rounded-lg p-3 transition-all duration-150 relative",
+                                            color === c.name && "scale-[1.05]"
                                         )}
                                     >
                                         <div
                                             className={cn(
                                                 "h-12 w-12 rounded-full border-2 transition-all duration-200",
-                                                color === c.value
+                                                color === c.name
                                                     ? "border-forest ring-2 ring-forest/30 ring-offset-2"
                                                     : "border-forest/10 hover:border-forest/30"
                                             )}
-                                            style={{ backgroundColor: c.hex }}
+                                            style={{ backgroundColor: COLOR_HEX[c.name.toLowerCase()] || "#ccc" }}
                                         />
-                                        <span className="font-body text-xs text-forest/70">{c.label}</span>
+                                        <span className="font-body text-xs text-forest/70 capitalize">{c.name}</span>
+                                        {c.priceAdjustment > 0 && (
+                                            <span className="text-[10px] text-forest/50 mt-[-4px]">
+                                                +Rp{c.priceAdjustment / 1000}k
+                                            </span>
+                                        )}
                                     </button>
                                 ))}
                             </div>
@@ -120,21 +139,28 @@ export function StepContent() {
                         <div>
                             <h3 className="mb-4 font-display text-xl text-forest">Pilih Wrapping</h3>
                             <div className="grid grid-cols-2 gap-3">
-                                {WRAPS.map((w) => (
+                                {wrapsDb.map((w) => (
                                     <button
-                                        key={w.value}
-                                        onClick={() => setWrap(w.value)}
+                                        key={w.name}
+                                        onClick={() => setWrap(w.name as WrapStyle)}
                                         className={cn(
-                                            "rounded-lg border-2 p-4 text-left transition-all duration-150",
-                                            wrap === w.value
+                                            "rounded-lg border-2 p-4 text-left transition-all duration-150 relative",
+                                            wrap === w.name
                                                 ? "border-forest bg-forest/5"
                                                 : "border-transparent bg-cream-dark/50 hover:border-forest/20"
                                         )}
                                     >
-                                        <span className="font-body text-base font-semibold text-forest">
-                                            {w.label}
+                                        <span className="font-body text-base font-semibold text-forest capitalize">
+                                            {w.name} Wrap
                                         </span>
-                                        <p className="mt-1 font-body text-xs text-forest/50">{w.desc}</p>
+                                        <p className="mt-1 font-body text-xs text-forest/50">
+                                            {WRAP_DESC[w.name.toLowerCase()] || "Pilihan premium"}
+                                        </p>
+                                        {w.priceAdjustment > 0 && (
+                                            <span className="text-[10px] text-forest/50 absolute top-2 right-2">
+                                                +Rp{w.priceAdjustment / 1000}k
+                                            </span>
+                                        )}
                                     </button>
                                 ))}
                             </div>
@@ -200,8 +226,14 @@ export function StepContent() {
                         onClick={() => {
                             if (!flower || !color || !wrap) return;
 
-                            // Using a fixed placeholder price for custom bouquets.
-                            const customPrice = 350000;
+                            // Find adjustments from DB
+                            const flowerAdj = dbOptions.find(o => o.category === "flower" && o.name === flower)?.priceAdjustment || 0;
+                            const colorAdj = dbOptions.find(o => o.category === "color" && o.name === color)?.priceAdjustment || 0;
+                            const wrapAdj = dbOptions.find(o => o.category === "wrapper" && o.name === wrap)?.priceAdjustment || 0;
+
+                            // Calculate dynamic price based on Base Custom Bouqet Price + Selected Options Adjustments
+                            const baseCustomPrice = 150000;
+                            const finalPrice = baseCustomPrice + flowerAdj + colorAdj + wrapAdj;
 
                             const { addItem } = useCartStore.getState();
 
@@ -209,7 +241,7 @@ export function StepContent() {
                                 id: `custom-${Date.now()}`,
                                 type: "custom",
                                 name: "Buket Rakitan Sendiri",
-                                price: customPrice,
+                                price: finalPrice,
                                 customDetails: {
                                     flower,
                                     color,

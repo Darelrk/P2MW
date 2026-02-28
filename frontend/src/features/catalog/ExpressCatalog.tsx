@@ -1,20 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Heart, Leaf, Sun } from "lucide-react";
+import { Heart, Leaf, Sparkles, Sun } from "lucide-react";
 import { staggerContainer } from "@/lib/animations";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { cn } from "@/lib/cn";
 
-type MoodFilter = "semua" | "romantis" | "elegan" | "hangat";
+type TierFilter = "semua" | "affordable" | "standard" | "premium" | "special";
 type SortOption = "default" | "price-asc" | "price-desc" | "stock-low";
 
-const MOOD_FILTERS: { key: MoodFilter; label: string; icon: React.ReactNode }[] = [
-    { key: "semua", label: "Semua", icon: <Sparkles className="h-4 w-4" /> },
-    { key: "romantis", label: "Romantis", icon: <Heart className="h-4 w-4" /> },
-    { key: "elegan", label: "Elegan", icon: <Leaf className="h-4 w-4" /> },
-    { key: "hangat", label: "Hangat", icon: <Sun className="h-4 w-4" /> },
+
+const TIER_FILTERS: { key: TierFilter; label: string; color: string }[] = [
+    { key: "semua", label: "Semua Harga", color: "bg-forest" },
+    { key: "affordable", label: "Affordable", color: "bg-sage" },
+    { key: "standard", label: "Standard", color: "bg-sage" },
+    { key: "premium", label: "Premium", color: "bg-sage" },
+    { key: "special", label: "Special", color: "bg-terracotta" },
 ];
 
 const SORT_OPTIONS: { key: SortOption; label: string }[] = [
@@ -24,104 +26,94 @@ const SORT_OPTIONS: { key: SortOption; label: string }[] = [
     { key: "stock-low", label: "Stok Menipis" },
 ];
 
-const EXPRESS_PRODUCTS = [
-    {
-        id: 1,
-        name: "Standard Red Romance",
-        price: "Rp 100.000",
-        priceNum: 100000,
-        image: "/images/red-romance.png",
-        stock: 5,
-        mood: "romantis" as MoodFilter,
-        views: 45,
-    },
-    {
-        id: 2,
-        name: "Mini Forest Bloom",
-        price: "Rp 75.000",
-        priceNum: 75000,
-        image: "/images/forest-bloom.png",
-        stock: 8,
-        mood: "hangat" as MoodFilter,
-        views: 22,
-    },
-    {
-        id: 3,
-        name: "Standard Pastel Dream",
-        price: "Rp 100.000",
-        priceNum: 100000,
-        image: "/images/pastel-dream.png",
-        stock: 4,
-        mood: "elegan" as MoodFilter,
-        views: 38,
-    },
-    {
-        id: 4,
-        name: "Premium Eternal Soft",
-        price: "Rp 150.000",
-        priceNum: 150000,
-        image: "/images/soft-hydrangea.png",
-        stock: 3,
-        mood: "hangat" as MoodFilter,
-        views: 15,
-    },
-    {
-        id: 5,
-        name: "Premium Elegance Hampers",
-        price: "Rp 200.000",
-        priceNum: 200000,
-        image: "/images/tulip-velvet.png",
-        stock: 2,
-        mood: "elegan" as MoodFilter,
-        views: 18,
-    },
-    {
-        id: 6,
-        name: "Mini Sunset Glow",
-        price: "Rp 75.000",
-        priceNum: 75000,
-        image: "/images/sunset-glow.png",
-        stock: 6,
-        mood: "romantis" as MoodFilter,
-        views: 29,
-    },
-];
+export interface FormattedProduct {
+    id: string;
+    name: string;
+    description: string | null;
+    priceNum: number;
+    image: string;
+    stock: number;
+    activeTiers: string[];
+    tiers: Record<string, { enabled: boolean; val: number }>;
+}
 
-export function ExpressCatalog() {
-    const [activeMood, setActiveMood] = useState<MoodFilter>("semua");
+interface ExpressCatalogProps {
+    initialProducts: FormattedProduct[];
+}
+
+export function ExpressCatalog({ initialProducts }: ExpressCatalogProps) {
+    const [activeTier, setActiveTier] = useState<TierFilter>("semua");
     const [activeSort, setActiveSort] = useState<SortOption>("default");
+    const [isPending, startTransition] = useTransition();
 
-    const filtered = useFilteredCatalog(EXPRESS_PRODUCTS, activeMood, activeSort);
+    // Recalculate display price based on active tier filter (Fast on Client)
+    const processedProducts = useMemo(() => {
+        return initialProducts.map(p => {
+            let displayPrice = p.priceNum;
+
+            if (activeTier !== "semua") {
+                const targetTier = p.tiers[activeTier];
+                if (targetTier && targetTier.enabled) {
+                    displayPrice = targetTier.val;
+                }
+            }
+
+            return {
+                ...p,
+                price: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(displayPrice),
+                priceNum: displayPrice,
+                views: Math.floor(Math.random() * 50) + 10 // Mock views for now
+            };
+        });
+    }, [initialProducts, activeTier]);
+
+    const sortedProducts = useMemo(() => {
+        const sorted = [...processedProducts];
+        switch (activeSort) {
+            case "price-asc": return sorted.sort((a, b) => a.priceNum - b.priceNum);
+            case "price-desc": return sorted.sort((a, b) => b.priceNum - a.priceNum);
+            case "stock-low": return sorted.sort((a, b) => a.stock - b.stock);
+            default: return sorted;
+        }
+    }, [processedProducts, activeSort]);
+
+    const visibleProductCount = useMemo(() => {
+        return sortedProducts.filter(p => activeTier === "semua" || p.activeTiers.includes(activeTier)).length;
+    }, [sortedProducts, activeTier]);
 
     return (
         <div>
             {/* Filter & Sort Bar */}
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                {/* Mood Chips */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                    {MOOD_FILTERS.map((filter) => (
-                        <motion.button
-                            key={filter.key}
-                            onClick={() => setActiveMood(filter.key)}
-                            whileTap={{ scale: 0.95 }}
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                {/* Category/Tier Filters */}
+                <div className="flex flex-wrap items-center gap-2">
+                    {TIER_FILTERS.map((tier) => (
+                        <button
+                            key={tier.key}
+                            onClick={() => startTransition(() => setActiveTier(tier.key))}
+                            disabled={isPending}
                             className={cn(
-                                "flex items-center gap-1.5 rounded-full px-4 py-2 font-body text-sm font-medium transition-all duration-300 whitespace-nowrap border",
-                                activeMood === filter.key
-                                    ? "border-forest bg-forest text-cream shadow-lg"
-                                    : "border-forest/10 bg-white text-forest/70 hover:border-forest/30 hover:bg-forest/5"
+                                "px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-300 border",
+                                activeTier === tier.key
+                                    ? "bg-forest text-cream border-forest shadow-md"
+                                    : "bg-white text-forest/40 border-forest/10 hover:border-forest/30",
+                                isPending && "opacity-70 cursor-wait"
                             )}
                         >
-                            <span>{filter.icon}</span>
-                            <span>{filter.label}</span>
-                        </motion.button>
+                            {tier.label}
+                        </button>
                     ))}
                 </div>
 
                 {/* Sort Dropdown */}
                 <select
                     value={activeSort}
-                    onChange={(e) => setActiveSort(e.target.value as SortOption)}
-                    className="rounded-xl border border-forest/10 bg-white px-4 py-2 font-body text-sm text-forest/70 outline-none focus:border-forest/30 transition-colors cursor-pointer"
+                    onChange={(e) => startTransition(() => setActiveSort(e.target.value as SortOption))}
+                    disabled={isPending}
+                    className={cn(
+                        "rounded-xl border border-forest/10 bg-white px-4 py-2 font-body text-sm text-forest/70 outline-none focus:border-forest/30 transition-colors cursor-pointer",
+                        isPending && "opacity-70 cursor-wait"
+                    )}
                 >
                     {SORT_OPTIONS.map((opt) => (
                         <option key={opt.key} value={opt.key}>
@@ -133,63 +125,33 @@ export function ExpressCatalog() {
 
             {/* Results count */}
             <p className="mb-4 font-body text-xs text-forest/40">
-                Menampilkan {filtered.length} produk
+                Menampilkan {visibleProductCount} produk
             </p>
 
-            {/* Product Grid */}
-            <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-2 gap-4 md:grid-cols-3"
-            >
-                <AnimatePresence mode="popLayout">
-                    {filtered.map((product) => (
-                        <motion.div
+            {/* Product Grid - Pure CSS Render Performance */}
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                {sortedProducts.map((product) => {
+                    const isVisible = activeTier === "semua" || product.activeTiers.includes(activeTier);
+                    if (!isVisible) return null;
+
+                    return (
+                        <div
                             key={product.id}
-                            layout
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ duration: 0.3 }}
+                            className="animate-in fade-in duration-300 ease-out"
                         >
                             <ProductCard
                                 name={product.name}
-                                price={product.price}
-                                image={product.image}
+                                price={(product as any).price || "Rp 0"}
+                                image={product.image || "/images/placeholder.png"}
+                                description={product.description}
                                 stock={product.stock}
-                                isExpress
+                                isExpress={true}
+                                priority={true}
                             />
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </motion.div>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
-}
-
-/* ─────────────────────────────────────────────
-   Custom Hook — Catalog Business Logic
-   ───────────────────────────────────────────── */
-function useFilteredCatalog(
-    products: typeof EXPRESS_PRODUCTS,
-    mood: MoodFilter,
-    sort: SortOption
-) {
-    return useMemo(() => {
-        const filtered = mood === "semua"
-            ? [...products]
-            : products.filter((p) => p.mood === mood);
-
-        switch (sort) {
-            case "price-asc":
-                return filtered.sort((a, b) => a.priceNum - b.priceNum);
-            case "price-desc":
-                return filtered.sort((a, b) => b.priceNum - a.priceNum);
-            case "stock-low":
-                return filtered.sort((a, b) => a.stock - b.stock);
-            default:
-                return filtered;
-        }
-    }, [products, mood, sort]);
 }

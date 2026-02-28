@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import { useBouquetStore } from "./store";
+import { useShallow } from "zustand/react/shallow";
 import { layerSwap } from "@/lib/animations";
 import { cn } from "@/lib/cn";
 
@@ -24,7 +25,9 @@ const WRAP_MAP: Record<string, { color: string; label: string }> = {
  * Each layer fades in/out when user changes their selection.
  */
 export function LayeredPreview() {
-    const { flower, color, wrap } = useBouquetStore();
+    const { flower, color, wrap } = useBouquetStore(
+        useShallow((state) => ({ flower: state.flower, color: state.color, wrap: state.wrap }))
+    );
 
     // Parallax Tilt Setup
     const ref = useRef<HTMLDivElement>(null);
@@ -105,6 +108,7 @@ export function LayeredPreview() {
                                 sizes="(max-width: 640px) 70vw, 30vw"
                                 quality={65}
                                 unoptimized={true}
+                                priority={true}
                             />
                         </motion.div>
                     )}

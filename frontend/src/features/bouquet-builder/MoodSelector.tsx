@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Heart, Leaf, Sparkles, Flame } from "lucide-react";
 import { useBouquetStore, type FlowerType, type FlowerColor, type WrapStyle } from "./store";
+import { useShallow } from "zustand/react/shallow";
 import { cn } from "@/lib/cn";
 
 interface Mood {
@@ -58,7 +59,9 @@ const MOODS: Mood[] = [
  * Appears once at the top of the Custom Builder page.
  */
 export function MoodSelector() {
-    const { setFlower, setColor, setWrap } = useBouquetStore();
+    const { setFlower, setColor, setWrap } = useBouquetStore(
+        useShallow(state => ({ setFlower: state.setFlower, setColor: state.setColor, setWrap: state.setWrap }))
+    );
 
     const applyPreset = (mood: Mood) => {
         setFlower(mood.preset.flower);

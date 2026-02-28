@@ -17,7 +17,7 @@ const STEPS = [
  * Replaces the previous linear stepper with a more engaging, gamified design.
  */
 export function ProgressStepper() {
-    const { step } = useBouquetStore();
+    const step = useBouquetStore(state => state.step);
     const progress = ((step + 1) / STEPS.length) * 100;
 
     return (

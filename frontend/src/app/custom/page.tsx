@@ -2,6 +2,9 @@ import { CustomBuilder } from "@/features/bouquet-builder/CustomBuilder";
 import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
+import { db } from "@/db";
+import { builderOptions } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const metadata = {
     title: "Rakit Sendiri — AMOUREA Bouquet",
@@ -9,7 +12,10 @@ export const metadata = {
         "Rakit buketmu sendiri langkah demi langkah. Pilih bunga, warna, wrapping, dan kartu ucapan.",
 };
 
-export default function CustomPage() {
+export default async function CustomPage() {
+    // Fetch configuration from DB based on availability
+    const dbOptions = await db.select().from(builderOptions).where(eq(builderOptions.isAvailable, true));
+
     return (
         <>
             <Navbar />
@@ -31,7 +37,7 @@ export default function CustomPage() {
                 </div>
 
                 {/* Builder */}
-                <CustomBuilder />
+                <CustomBuilder initialOptions={dbOptions} />
             </main>
             <Footer />
             <FloatingActionButton />
