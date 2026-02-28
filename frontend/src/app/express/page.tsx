@@ -6,6 +6,7 @@ import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { InferSelectModel } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +15,15 @@ export const metadata = {
     description: "Buket rajutan yang jadi dalam 3 jam. Pesan sekarang!",
 };
 
+type Product = InferSelectModel<typeof products>;
+
 export default async function ExpressPage() {
     // Fetch data server-side
-    const dbProducts = await db.select().from(products).where(eq(products.status, true));
+    // db might be null/any in build env, so we handle it
+    const dbProducts = await db.select().from(products).where(eq(products.status, true)) as Product[];
 
     // Format products on server for better LCP
-    const formattedProducts = dbProducts.map(p => {
+    const formattedProducts = dbProducts.map((p: Product) => {
         const tiers = [
             { key: "affordable", enabled: p.allowAffordable, val: p.priceAffordable },
             { key: "standard", enabled: p.allowStandard, val: p.priceStandard },
