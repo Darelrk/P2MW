@@ -62,8 +62,8 @@ export function useProducts() {
                 editingProduct?.modelUrl
             );
 
-            formData.set('imageUrl', finalImageUrl);
-            formData.set('modelUrl', finalModelUrl);
+            formData.set('imageUrl', finalImageUrl || '');
+            formData.set('modelUrl', finalModelUrl || '');
             formData.set('status', String(validatedData.status)); 
 
             if (editingProduct) {

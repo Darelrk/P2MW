@@ -48,7 +48,7 @@ export function useBuilder() {
                 editingOption?.imageUrl
             );
 
-            formData.set('imageUrl', finalImageUrl);
+            formData.set('imageUrl', finalImageUrl || '');
             formData.set('isAvailable', String(validatedData.isAvailable));
 
             if (editingOption) {
