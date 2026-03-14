@@ -12,9 +12,11 @@ interface PopularCombinationsProps {
 
 export function PopularCombinations({ initialProducts = [] }: PopularCombinationsProps) {
     const [currentIndex, setCurrentIndex] = React.useState(0);
+    const [isMounted, setIsMounted] = React.useState(false);
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
+        setIsMounted(true);
         // Pre-warm library AR saat user masuk ke area katalog
         import("@google/model-viewer").catch(console.error);
     }, []);
@@ -135,7 +137,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                             opacity: isActive ? 1 : 0.4,
                                             scale: isActive ? 1.05 : 0.85,
                                             zIndex: isActive ? 20 : 10,
-                                            x: typeof window !== "undefined" && window.innerWidth >= 768 ? (isActive ? 0 : (isPrev ? -20 : 20)) : 0,
+                                            x: isMounted && window.innerWidth >= 768 ? (isActive ? 0 : (isPrev ? -20 : 20)) : 0,
                                             filter: isActive ? 'blur(0px)' : 'blur(2px)'
                                         }}
                                         exit={{ opacity: 0, scale: 0.5 }}
@@ -148,7 +150,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                             "w-[80vw] max-w-[300px] md:w-full md:max-w-[340px] shrink-0 snap-center",
                                             !isActive && "md:block hidden"
                                         )}
-                                        drag={typeof window !== "undefined" && window.innerWidth >= 768 ? "x" : false}
+                                        drag={isMounted && window.innerWidth >= 768 ? "x" : false}
                                         dragConstraints={{ left: 0, right: 0 }}
                                         onDragEnd={(_, info) => {
                                             if (info.offset.x < -50) next();
