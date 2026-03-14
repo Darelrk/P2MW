@@ -30,6 +30,7 @@ export const products = pgTable('products', {
 
     status: boolean('status').default(true).notNull(), // Active or Inactive (Global Visibility)
     imageUrl: varchar('image_url', { length: 512 }),
+    modelUrl: varchar('model_url', { length: 512 }),
     stock: integer('stock').default(0).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({

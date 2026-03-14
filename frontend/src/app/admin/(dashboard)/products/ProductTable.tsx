@@ -35,7 +35,12 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                                         )}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-forest">{item.name}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-medium text-forest">{item.name}</p>
+                                            {item.modelUrl && (
+                                                <span className="text-[9px] font-bold bg-blue-100 text-blue-600 px-1 rounded uppercase tracking-tighter">AR</span>
+                                            )}
+                                        </div>
                                         <p className="text-xs text-forest/50 truncate max-w-[200px]">{item.description}</p>
                                     </div>
                                 </div>

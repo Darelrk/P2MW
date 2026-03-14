@@ -2,7 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server'
 
-export async function uploadImage(formData: FormData) {
+export async function uploadFile(formData: FormData, bucket: string = 'products') {
     try {
         const file = formData.get('file') as File
 
@@ -18,21 +18,19 @@ export async function uploadImage(formData: FormData) {
         const filePath = `uploads/${fileName}`
 
         // Auto-provisioning: Check if bucket exists, create if not
-        const { data: bucketData, error: bucketError } = await supabase.storage.getBucket('products')
+        const { data: bucketData, error: bucketError } = await supabase.storage.getBucket(bucket)
 
         if (bucketError && bucketError.message.includes('not found') || !bucketData) {
-            console.log("Bucket 'products' not found. Attempting to auto-create...")
-            const { error: createError } = await supabase.storage.createBucket('products', { public: true })
+            console.log(`Bucket '${bucket}' not found. Attempting to auto-create...`)
+            const { error: createError } = await supabase.storage.createBucket(bucket, { public: true })
             if (createError) {
-                console.warn('Auto-create bucket failed (Ensure your API Key has admin privileges):', createError.message)
-            } else {
-                console.log("Bucket 'products' created successfully!")
+                console.warn('Auto-create bucket failed:', createError.message)
             }
         }
 
-        // Upload to the 'products' bucket
+        // Upload to the bucket
         const { error: uploadError } = await supabase.storage
-            .from('products')
+            .from(bucket)
             .upload(filePath, file)
 
         if (uploadError) {
@@ -40,9 +38,9 @@ export async function uploadImage(formData: FormData) {
             return { success: false, error: uploadError.message }
         }
 
-        // Get the public URL for the uploaded file
+        // Get the public URL
         const { data } = supabase.storage
-            .from('products')
+            .from(bucket)
             .getPublicUrl(filePath)
 
         return {

@@ -35,6 +35,7 @@ export async function createProduct(formData: FormData) {
 
         const stock = parseInt(formData.get('stock') as string) || 0
         const imageUrl = formData.get('imageUrl') as string
+        const modelUrl = formData.get('modelUrl') as string
         const status = formData.get('status') === 'true'
 
         await db.insert(products).values({
@@ -50,6 +51,7 @@ export async function createProduct(formData: FormData) {
             allowSpecial,
             stock,
             imageUrl: imageUrl || null,
+            modelUrl: modelUrl || null,
             status: status !== undefined ? status : true,
         })
 
@@ -79,6 +81,7 @@ export async function updateProduct(id: string, formData: FormData) {
 
         const stock = parseInt(formData.get('stock') as string) || 0
         const imageUrl = formData.get('imageUrl') as string
+        const modelUrl = formData.get('modelUrl') as string
         const status = formData.get('status') === 'true'
 
         await db.update(products).set({
@@ -94,6 +97,7 @@ export async function updateProduct(id: string, formData: FormData) {
             allowSpecial,
             stock,
             imageUrl: imageUrl || null,
+            modelUrl: modelUrl || null,
             status,
         }).where(eq(products.id, id))
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { createProduct, updateProduct, deleteProduct } from '@/actions/adminActions';
-import { uploadImage } from '@/actions/storageActions';
+import { uploadFile } from '@/actions/storageActions';
 import imageCompression from 'browser-image-compression';
 
 const COMPRESSION_OPTIONS = {
@@ -24,6 +24,7 @@ export type Product = {
     allowSpecial: boolean;
     status: boolean;
     imageUrl: string | null;
+    modelUrl: string | null;
     stock: number;
 };
 
@@ -33,6 +34,7 @@ export function useProducts() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [modelFile, setModelFile] = useState<File | null>(null);
 
     const handleOpenModal = (product?: Product) => {
         if (product) {
@@ -43,6 +45,7 @@ export function useProducts() {
             setImagePreview(null);
         }
         setImageFile(null);
+        setModelFile(null);
         setIsModalOpen(true);
     };
 
@@ -51,6 +54,7 @@ export function useProducts() {
         setEditingProduct(null);
         setImageFile(null);
         setImagePreview(null);
+        setModelFile(null);
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +69,13 @@ export function useProducts() {
         }
     };
 
+    const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setModelFile(file);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -74,7 +85,9 @@ export function useProducts() {
             const formData = new FormData(form);
 
             let finalImageUrl = editingProduct?.imageUrl || '';
+            let finalModelUrl = editingProduct?.modelUrl || '';
 
+            // Handle Image Upload
             if (imageFile) {
                 let fileToUpload = imageFile;
 
@@ -90,7 +103,7 @@ export function useProducts() {
                 const imgFormData = new FormData();
                 imgFormData.append('file', fileToUpload);
 
-                const uploadRes = await uploadImage(imgFormData);
+                const uploadRes = await uploadFile(imgFormData, 'products');
                 if (!uploadRes.success) {
                     alert('Gagal mengupload gambar: ' + uploadRes.error);
                     setIsSubmitting(false);
@@ -99,7 +112,22 @@ export function useProducts() {
                 finalImageUrl = uploadRes.publicUrl!;
             }
 
+            // Handle Model Upload
+            if (modelFile) {
+                const modelFormData = new FormData();
+                modelFormData.append('file', modelFile);
+
+                const uploadRes = await uploadFile(modelFormData, 'product-models');
+                if (!uploadRes.success) {
+                    alert('Gagal mengupload model: ' + uploadRes.error);
+                    setIsSubmitting(false);
+                    return;
+                }
+                finalModelUrl = uploadRes.publicUrl!;
+            }
+
             formData.set('imageUrl', finalImageUrl);
+            formData.set('modelUrl', finalModelUrl);
 
             if (editingProduct) {
                 await updateProduct(editingProduct.id, formData);
@@ -131,9 +159,11 @@ export function useProducts() {
         editingProduct,
         isSubmitting,
         imagePreview,
+        modelFileName: modelFile?.name,
         handleOpenModal,
         handleCloseModal,
         handleImageChange,
+        handleModelChange,
         handleSubmit,
         handleDelete
     };

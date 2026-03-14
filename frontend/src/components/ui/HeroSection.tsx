@@ -47,8 +47,10 @@ export function HeroSection() {
                     </div>
 
                     {/* Right content: 3D Showcase */}
-                    <div className="relative flex justify-center lg:justify-end">
-                        <Carousel3D />
+                    <div className="relative flex flex-col items-center lg:items-end gap-6">
+                        <div className="relative w-full aspect-square flex justify-center lg:justify-end">
+                            <Carousel3D />
+                        </div>
                     </div>
                 </div>
             </div>

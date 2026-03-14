@@ -11,9 +11,11 @@ export default function ProductsClient({ initialData }: { initialData: Product[]
         editingProduct,
         isSubmitting,
         imagePreview,
+        modelFileName,
         handleOpenModal,
         handleCloseModal,
         handleImageChange,
+        handleModelChange,
         handleSubmit,
         handleDelete
     } = useProducts()
@@ -43,7 +45,9 @@ export default function ProductsClient({ initialData }: { initialData: Product[]
                 editingProduct={editingProduct}
                 isSubmitting={isSubmitting}
                 imagePreview={imagePreview}
+                modelFileName={modelFileName}
                 onImageChange={handleImageChange}
+                onModelChange={handleModelChange}
                 onSubmit={handleSubmit}
             />
         </div>

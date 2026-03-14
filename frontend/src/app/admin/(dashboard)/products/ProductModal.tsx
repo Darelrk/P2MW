@@ -1,5 +1,5 @@
-import React from 'react';
 import { X, UploadCloud } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { cn } from '@/lib/cn';
 import type { Product } from './useProducts';
@@ -10,7 +10,9 @@ interface ProductModalProps {
     editingProduct: Product | null;
     isSubmitting: boolean;
     imagePreview: string | null;
+    modelFileName?: string;
     onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onModelChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
@@ -20,15 +22,21 @@ export function ProductModal({
     editingProduct,
     isSubmitting,
     imagePreview,
+    modelFileName,
     onImageChange,
+    onModelChange,
     onSubmit
 }: ProductModalProps) {
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-forest/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6 border-b border-forest/10 flex justify-between items-center sticky top-0 bg-white z-10">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden"
+            >
+                <div className="p-6 border-b border-forest/10 flex justify-between items-center bg-white z-10">
                     <h3 className="font-display font-bold text-xl text-forest">
                         {editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}
                     </h3>
@@ -37,7 +45,7 @@ export function ProductModal({
                     </button>
                 </div>
 
-                <form onSubmit={onSubmit} className="p-6 space-y-6">
+                <form onSubmit={onSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Image Upload Area */}
                     <div>
                         <label className="block text-sm font-medium text-forest/70 mb-2">Foto Produk</label>
@@ -68,95 +76,49 @@ export function ProductModal({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-forest/70 mb-2">Nama Produk</label>
-                            <input required name="name" defaultValue={editingProduct?.name} type="text" className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20" />
+                            <input required name="name" defaultValue={editingProduct?.name} type="text" placeholder="Masukkan nama produk..." className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20" />
                         </div>
 
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-forest/70 mb-2">Deskripsi (Opsional)</label>
-                            <textarea name="description" defaultValue={editingProduct?.description || ''} rows={3} className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20"></textarea>
+                            <textarea name="description" defaultValue={editingProduct?.description || ''} rows={3} placeholder="Ceritakan tentang buket ini..." className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20"></textarea>
                         </div>
 
-                        {/* Affordable Tier */}
-                        <div className={cn(
-                            "p-4 rounded-xl border transition-all duration-300",
-                            "border-forest/10 bg-cream-light/30"
-                        )}>
-                            <div className="flex items-center gap-2 mb-3">
-                                <input
-                                    type="radio"
-                                    name="mainTier"
-                                    id="tier-affordable"
-                                    value="affordable"
-                                    defaultChecked={editingProduct ? editingProduct.allowAffordable : true}
-                                    className="w-4 h-4 accent-forest"
-                                    required
-                                />
-                                <label htmlFor="tier-affordable" className="text-sm font-bold text-forest cursor-pointer">Affordable</label>
+                        {/* Pricing Tiers */}
+                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div className="p-4 rounded-xl border border-forest/10 bg-cream-light/30">
+                                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                                    <input type="radio" name="mainTier" value="affordable" defaultChecked={editingProduct ? editingProduct.allowAffordable : true} className="accent-forest" />
+                                    <span className="text-xs font-bold text-forest">Affordable</span>
+                                </label>
+                                <input name="priceAffordable" defaultValue={editingProduct?.priceAffordable || 0} type="number" className="w-full px-3 py-1.5 rounded-lg border border-forest/10 text-sm" />
                             </div>
-                            <label className="block text-xs font-medium text-forest/50 mb-1">Harga (Rp)</label>
-                            <input name="priceAffordable" defaultValue={editingProduct?.priceAffordable || 0} type="number" min="0" className="w-full px-3 py-1.5 rounded-lg border border-forest/10 focus:outline-none focus:ring-2 focus:ring-forest/15 text-sm" />
-                        </div>
-
-                        {/* Standard Tier */}
-                        <div className={cn(
-                            "p-4 rounded-xl border transition-all duration-300",
-                            "border-forest/10 bg-cream-light/30"
-                        )}>
-                            <div className="flex items-center gap-2 mb-3">
-                                <input
-                                    type="radio"
-                                    name="mainTier"
-                                    id="tier-standard"
-                                    value="standard"
-                                    defaultChecked={editingProduct ? editingProduct.allowStandard : false}
-                                    className="w-4 h-4 accent-forest"
-                                />
-                                <label htmlFor="tier-standard" className="text-sm font-bold text-forest cursor-pointer">Standard</label>
+                            <div className="p-4 rounded-xl border border-forest/10 bg-cream-light/30">
+                                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                                    <input type="radio" name="mainTier" value="standard" defaultChecked={editingProduct ? editingProduct.allowStandard : false} className="accent-forest" />
+                                    <span className="text-xs font-bold text-forest">Standard</span>
+                                </label>
+                                <input name="priceStandard" defaultValue={editingProduct?.priceStandard || 0} type="number" className="w-full px-3 py-1.5 rounded-lg border border-forest/10 text-sm" />
                             </div>
-                            <label className="block text-xs font-medium text-forest/50 mb-1">Harga (Rp)</label>
-                            <input name="priceStandard" defaultValue={editingProduct?.priceStandard || 0} type="number" min="0" className="w-full px-3 py-1.5 rounded-lg border border-forest/10 focus:outline-none focus:ring-2 focus:ring-forest/15 text-sm" />
-                        </div>
-
-                        {/* Premium Tier */}
-                        <div className={cn(
-                            "p-4 rounded-xl border transition-all duration-300",
-                            "border-forest/10 bg-cream-light/30"
-                        )}>
-                            <div className="flex items-center gap-2 mb-3">
-                                <input
-                                    type="radio"
-                                    name="mainTier"
-                                    id="tier-premium"
-                                    value="premium"
-                                    defaultChecked={editingProduct ? editingProduct.allowPremium : false}
-                                    className="w-4 h-4 accent-forest"
-                                />
-                                <label htmlFor="tier-premium" className="text-sm font-bold text-forest cursor-pointer">Premium</label>
+                            <div className="p-4 rounded-xl border border-forest/10 bg-cream-light/30">
+                                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                                    <input type="radio" name="mainTier" value="premium" defaultChecked={editingProduct ? editingProduct.allowPremium : false} className="accent-forest" />
+                                    <span className="text-xs font-bold text-forest">Premium</span>
+                                </label>
+                                <input name="pricePremium" defaultValue={editingProduct?.pricePremium || 0} type="number" className="w-full px-3 py-1.5 rounded-lg border border-forest/10 text-sm" />
                             </div>
-                            <label className="block text-xs font-medium text-forest/50 mb-1">Harga (Rp)</label>
-                            <input name="pricePremium" defaultValue={editingProduct?.pricePremium || 0} type="number" min="0" className="w-full px-3 py-1.5 rounded-lg border border-forest/10 focus:outline-none focus:ring-2 focus:ring-forest/15 text-sm" />
-                        </div>
-
-                        {/* Special Tier */}
-                        <div className="p-4 rounded-xl border border-terracotta/10 bg-terracotta/5">
-                            <div className="flex items-center gap-2 mb-3">
-                                <input
-                                    type="checkbox"
-                                    name="allowSpecial"
-                                    id="tier-special"
-                                    value="true"
-                                    defaultChecked={editingProduct ? editingProduct.allowSpecial : false}
-                                    className="w-4 h-4 accent-terracotta"
-                                />
-                                <label htmlFor="tier-special" className="text-sm font-bold text-terracotta cursor-pointer">Special</label>
+                            <div className="p-4 rounded-xl border border-terracotta/10 bg-terracotta/5">
+                                <label className="flex items-center gap-2 mb-2 cursor-pointer">
+                                    <input type="checkbox" name="allowSpecial" value="true" defaultChecked={editingProduct ? editingProduct.allowSpecial : false} className="accent-terracotta" />
+                                    <span className="text-xs font-bold text-terracotta">Special Tier</span>
+                                </label>
+                                <input name="priceSpecial" defaultValue={editingProduct?.priceSpecial || 0} type="number" className="w-full px-3 py-1.5 rounded-lg border border-terracotta/10 text-sm" />
                             </div>
-                            <label className="block text-xs font-medium text-terracotta/50 mb-1">Harga (Rp)</label>
-                            <input name="priceSpecial" defaultValue={editingProduct?.priceSpecial || 0} type="number" min="0" className="w-full px-3 py-1.5 rounded-lg border border-terracotta/10 focus:outline-none focus:ring-2 focus:ring-terracotta/15 text-sm" />
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-forest/70 mb-2">Stok Tersedia</label>
-                            <input required name="stock" defaultValue={editingProduct?.stock || 0} type="number" min="0" className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20" />
+                            <input required name="stock" defaultValue={editingProduct?.stock || 0} type="number" className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20" />
                         </div>
 
                         <div>
@@ -166,16 +128,42 @@ export function ProductModal({
                                 <option value="false">Nonaktif (Disembunyikan)</option>
                             </select>
                         </div>
+
+                        {/* AR Model Upload Section */}
+                        <div className="md:col-span-2 p-6 bg-blue-50/50 rounded-2xl border border-blue-100 space-y-4">
+                            <div className="flex items-center gap-2 text-blue-800">
+                                <span className="p-2 bg-blue-100 rounded-lg">📱</span>
+                                <h4 className="font-bold text-sm">Visualisasi AR (3D Model .glb)</h4>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-blue-600/70 uppercase tracking-wider">Upload File Baru</label>
+                                    <div className="flex items-center gap-3">
+                                        <input type="file" accept=".glb" onChange={onModelChange} className="hidden" id="model-upload" />
+                                        <label htmlFor="model-upload" className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-blue-700 transition-colors flex items-center gap-2">
+                                            <UploadCloud className="w-4 h-4" />
+                                            {modelFileName ? 'Ganti File' : 'Pilih File .glb'}
+                                        </label>
+                                        {modelFileName && <span className="text-[10px] text-blue-800 font-medium truncate max-w-[150px]">{modelFileName}</span>}
+                                    </div>
+                                    <p className="text-[10px] text-blue-600/50 italic">File akan otomatis disimpan di Cloud Storage.</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-bold text-blue-600/70 uppercase tracking-wider">Atau Link Manual</label>
+                                    <input name="modelUrl" defaultValue={editingProduct?.modelUrl || ''} type="text" placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300 text-xs font-mono" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="pt-6 border-t border-forest/10 flex justify-end gap-3 sticky bottom-0 bg-white">
                         <button type="button" onClick={onClose} className="px-6 py-2 rounded-lg border border-forest/20 text-forest font-medium hover:bg-forest/5 transition-colors">Batal</button>
-                        <button type="submit" disabled={isSubmitting} className="px-6 py-2 rounded-lg bg-forest text-white font-medium hover:bg-forest-light transition-colors disabled:opacity-50 flex items-center gap-2">
+                        <button type="submit" disabled={isSubmitting} className="px-6 py-2 rounded-lg bg-forest text-white font-medium hover:bg-forest-light transition-colors disabled:opacity-50">
                             {isSubmitting ? 'Menyimpan...' : 'Simpan Produk'}
                         </button>
                     </div>
                 </form>
-            </div>
+            </motion.div>
         </div>
     );
 }
