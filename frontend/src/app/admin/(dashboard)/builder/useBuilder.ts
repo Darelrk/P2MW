@@ -1,6 +1,7 @@
+'use client'
 import { useState } from 'react';
 import { createBuilderOption, updateBuilderOption, deleteBuilderOption } from '@/actions/adminActions';
-import { uploadImage } from '@/actions/storageActions';
+import { uploadFile } from '@/actions/storageActions';
 import imageCompression from 'browser-image-compression';
 
 const COMPRESSION_OPTIONS = {
@@ -82,7 +83,7 @@ export function useBuilder() {
                 const imgFormData = new FormData();
                 imgFormData.append('file', fileToUpload);
 
-                const uploadRes = await uploadImage(imgFormData);
+                const uploadRes = await uploadFile(imgFormData);
                 if (!uploadRes.success) {
                     alert('Gagal mengupload gambar: ' + uploadRes.error);
                     setIsSubmitting(false);

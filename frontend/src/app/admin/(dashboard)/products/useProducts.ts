@@ -1,3 +1,4 @@
+'use client'
 import { useState } from 'react';
 import { createProduct, updateProduct, deleteProduct } from '@/actions/adminActions';
 import { uploadFile } from '@/actions/storageActions';
