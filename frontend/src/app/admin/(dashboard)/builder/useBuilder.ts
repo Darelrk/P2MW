@@ -1,15 +1,8 @@
 'use client'
-import { useState } from 'react';
-import { createBuilderOption, updateBuilderOption, deleteBuilderOption } from '@/actions/adminActions';
-import { uploadFile } from '@/actions/storageActions';
-import imageCompression from 'browser-image-compression';
 
-const COMPRESSION_OPTIONS = {
-    maxSizeMB: 0.1, // Target under 100KB
-    maxWidthOrHeight: 800, // Sufficient for catalog
-    useWebWorker: true,
-    fileType: 'image/webp'
-};
+import { createBuilderOption, updateBuilderOption, deleteBuilderOption } from '@/actions/adminActions';
+import { useBaseCrud } from '@/hooks/useBaseCrud';
+import { BuilderOptionSchema } from '@/lib/validations';
 
 export type BuilderOption = {
     id: string;
@@ -18,104 +11,87 @@ export type BuilderOption = {
     isAvailable: boolean;
     priceAdjustment: number;
     imageUrl: string | null;
+    isDeleted: boolean;
 };
 
 export function useBuilder() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingOption, setEditingOption] = useState<BuilderOption | null>(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-
-    const handleOpenModal = (option?: BuilderOption) => {
-        if (option) {
-            setEditingOption(option);
-            setImagePreview(option.imageUrl);
-        } else {
-            setEditingOption(null);
-            setImagePreview(null);
-        }
-        setImageFile(null);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setEditingOption(null);
-        setImageFile(null);
-        setImagePreview(null);
-    };
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    const {
+        isModalOpen,
+        editingItem: editingOption,
+        isSubmitting,
+        setIsSubmitting,
+        imagePreview,
+        handleOpenModal,
+        handleCloseModal,
+        handleImageChange,
+        processFileUploads,
+        getValidatedData,
+        toast
+    } = useBaseCrud<BuilderOption>({
+        schema: BuilderOptionSchema,
+        uploadBucket: 'builder-options'
+    });
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        try {
+        const promise = (async () => {
             const form = e.currentTarget;
             const formData = new FormData(form);
+            
+            // Use abstract validation
+            const validatedData = getValidatedData(formData);
 
-            let finalImageUrl = editingOption?.imageUrl || '';
-
-            if (imageFile) {
-                let fileToUpload = imageFile;
-
-                try {
-                    const compressedFile = await imageCompression(imageFile, COMPRESSION_OPTIONS);
-                    if (compressedFile.size < imageFile.size) {
-                        fileToUpload = compressedFile;
-                    }
-                } catch (error) {
-                    console.warn("Image compression failed, proceeding with original file:", error);
-                }
-
-                const imgFormData = new FormData();
-                imgFormData.append('file', fileToUpload);
-
-                const uploadRes = await uploadFile(imgFormData);
-                if (!uploadRes.success) {
-                    alert('Gagal mengupload gambar: ' + uploadRes.error);
-                    setIsSubmitting(false);
-                    return;
-                }
-                finalImageUrl = uploadRes.publicUrl!;
-            }
+            const { finalImageUrl } = await processFileUploads(
+                editingOption?.imageUrl
+            );
 
             formData.set('imageUrl', finalImageUrl);
+            formData.set('isAvailable', String(validatedData.isAvailable));
 
             if (editingOption) {
                 await updateBuilderOption(editingOption.id, formData);
+                return 'Opsi berhasil diperbarui';
             } else {
                 await createBuilderOption(formData);
+                return 'Opsi berhasil ditambahkan';
             }
+        })();
 
-            handleCloseModal();
+        toast.promise(promise, {
+            loading: 'Sedang menyimpan...',
+            success: (data) => {
+                handleCloseModal();
+                return data;
+            },
+            error: (err) => err.message || 'Gagal menyimpan opsi'
+        });
+
+        try {
+            await promise;
         } catch (err) {
             console.error(err);
-            alert(err instanceof Error ? err.message : 'Kesalahan sistem.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const handleDelete = async (id: string, name: string) => {
-        if (window.confirm(`Apakah Anda yakin ingin menghapus opsi "${name}"?`)) {
-            try {
-                await deleteBuilderOption(id);
-            } catch (err) {
-                alert(err instanceof Error ? err.message : 'Gagal menghapus opsi.');
-            }
+        if (!window.confirm(`Hapus opsi "${name}"?`)) return;
+
+        const promise = deleteBuilderOption(id);
+
+        toast.promise(promise, {
+            loading: 'Menghapus...',
+            success: 'Opsi berhasil dihapus',
+            error: 'Gagal menghapus opsi'
+        });
+
+        try {
+            await promise;
+        } catch (err) {
+            console.error(err);
         }
     };
 

@@ -55,12 +55,13 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
             image: p.imageUrl || "/images/forest-bloom.png",
             stock: p.stock,
             description: p.description,
-            modelUrl: p.modelUrl
+            modelUrl: p.modelUrl,
+            soldCount: p.soldCount
         };
     }) : [
-        { id: "p1", name: "Forest Bloom", price: "Rp 185.000", image: "/images/forest-bloom.png", stock: 5, description: "Buket rajut premium dengan nuansa hutan.", modelUrl: null },
-        { id: "p2", name: "Pastel Dream", price: "Rp 210.000", image: "/images/pastel-dream.png", stock: 2, description: "Kombinasi warna pastel yang elegan.", modelUrl: null },
-        { id: "p3", name: "Red Romance", price: "Rp 195.000", image: "/images/red-romance.png", stock: 8, description: "Mawar merah klasik untuk orang tersayang.", modelUrl: null },
+        { id: "p1", name: "Forest Bloom", price: "Rp 185.000", image: "/images/forest-bloom.png", stock: 5, description: "Buket rajut premium dengan nuansa hutan.", modelUrl: null, soldCount: 0 },
+        { id: "p2", name: "Pastel Dream", price: "Rp 210.000", image: "/images/pastel-dream.png", stock: 2, description: "Kombinasi warna pastel yang elegan.", modelUrl: null, soldCount: 0 },
+        { id: "p3", name: "Red Romance", price: "Rp 195.000", image: "/images/red-romance.png", stock: 8, description: "Mawar merah klasik untuk orang tersayang.", modelUrl: null, soldCount: 0 },
     ];
 
     const next = () => setCurrentIndex((prev) => (prev + 1) % products.length);
@@ -144,6 +145,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                             description={product.description}
                                             hasAR={!!product.modelUrl}
                                             modelUrl={product.modelUrl || undefined}
+                                            soldCount={product.soldCount}
                                         />
                                     </motion.div>
                                 );

@@ -123,6 +123,11 @@ export function ProductModal({
                         </div>
 
                         <div>
+                            <label className="block text-sm font-medium text-forest/70 mb-2">Jumlah Terjual (Sales)</label>
+                            <input required name="soldCount" defaultValue={editingProduct?.soldCount || 0} type="number" className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20" />
+                        </div>
+
+                        <div>
                             <label className="block text-sm font-medium text-forest/70 mb-2">Status Visibilitas</label>
                             <select name="status" defaultValue={editingProduct ? String(editingProduct.status) : "true"} className="w-full px-4 py-2 rounded-lg border border-forest/20 focus:outline-none focus:ring-2 focus:ring-forest/20">
                                 <option value="true">Aktif (Ditampilkan)</option>

@@ -33,6 +33,7 @@ export interface FormattedProduct {
     priceNum: number;
     image: string;
     stock: number;
+    soldCount: number;
     activeTiers: string[];
     tiers: Record<string, { enabled: boolean; val: number }>;
 }
@@ -145,6 +146,7 @@ export function ExpressCatalog({ initialProducts }: ExpressCatalogProps) {
                                 image={product.image || "/images/placeholder.png"}
                                 description={product.description}
                                 stock={product.stock}
+                                soldCount={product.soldCount}
                                 isExpress={true}
                                 priority={true}
                             />

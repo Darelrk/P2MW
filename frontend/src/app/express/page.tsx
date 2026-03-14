@@ -5,7 +5,7 @@ import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { db } from "@/db";
 import { products } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { InferSelectModel } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
@@ -18,9 +18,15 @@ export const metadata = {
 type Product = InferSelectModel<typeof products>;
 
 export default async function ExpressPage() {
-    // Fetch data server-side
-    // db might be null/any in build env, so we handle it
-    const dbProducts = await db.select().from(products).where(eq(products.status, true)) as Product[];
+    // Fetch data server-side - excluding deleted and inactive products
+    const dbProducts = await db.select()
+        .from(products)
+        .where(
+            and(
+                eq(products.status, true),
+                eq(products.isDeleted, false)
+            )
+        ) as Product[];
 
     // Format products on server for better LCP
     const formattedProducts = dbProducts.map((p: Product) => {
@@ -38,11 +44,11 @@ export default async function ExpressPage() {
             id: p.id,
             name: p.name,
             description: p.description,
-            priceNum: minPrice, // Default min price for initial load
+            priceNum: minPrice, 
             image: p.imageUrl || "/images/forest-bloom.png",
             stock: p.stock,
+            soldCount: p.soldCount, // Pass soldCount to frontend
             activeTiers: enabledTiers.map(t => t.key),
-            // Pre-calculate tier values for client-side switching
             tiers: tiers.reduce((acc, t) => ({ ...acc, [t.key]: { enabled: t.enabled, val: t.val } }), {})
         };
     });

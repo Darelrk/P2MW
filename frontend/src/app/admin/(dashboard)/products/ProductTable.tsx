@@ -18,6 +18,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                         <th className="px-6 py-4">Produk</th>
                         <th className="px-6 py-4">Kategori Harga Aktif</th>
                         <th className="px-6 py-4">Stok</th>
+                        <th className="px-6 py-4">Terjual</th>
                         <th className="px-6 py-4">Status</th>
                         <th className="px-6 py-4 text-right">Aksi</th>
                     </tr>
@@ -79,6 +80,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                                 </div>
                             </td>
                             <td className="px-6 py-4">{item.stock}</td>
+                            <td className="px-6 py-4 font-medium text-forest">{item.soldCount}</td>
                             <td className="px-6 py-4">
                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${item.status ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     {item.status ? 'Aktif' : 'Nonaktif'}
@@ -102,7 +104,7 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                     ))}
                     {products.length === 0 && (
                         <tr>
-                            <td colSpan={5} className="px-6 py-8 text-center text-forest/50">
+                            <td colSpan={6} className="px-6 py-8 text-center text-forest/50">
                                 Belum ada produk. Tambahkan produk pertama Anda.
                             </td>
                         </tr>

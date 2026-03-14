@@ -32,6 +32,8 @@ export const products = pgTable('products', {
     imageUrl: varchar('image_url', { length: 512 }),
     modelUrl: varchar('model_url', { length: 512 }),
     stock: integer('stock').default(0).notNull(),
+    soldCount: integer('sold_count').default(0).notNull(),
+    isDeleted: boolean('is_deleted').default(false).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
     statusIdx: index('product_status_idx').on(table.status),
@@ -46,6 +48,7 @@ export const builderOptions = pgTable('builder_options', {
     isAvailable: boolean('is_available').default(true).notNull(),
     priceAdjustment: integer('price_adjustment').default(0).notNull(),
     imageUrl: varchar('image_url', { length: 512 }),
+    isDeleted: boolean('is_deleted').default(false).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
     categoryIdx: index('builder_category_idx').on(table.category),

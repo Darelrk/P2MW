@@ -4,7 +4,7 @@ import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { db } from "@/db";
 import { builderOptions } from "@/db/schema";
-import { eq, InferSelectModel } from "drizzle-orm";
+import { eq, InferSelectModel, and } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,15 @@ export const metadata = {
 type BuilderOption = InferSelectModel<typeof builderOptions>;
 
 export default async function CustomPage() {
-    // Fetch configuration from DB based on availability
-    const dbOptions = await db.select().from(builderOptions).where(eq(builderOptions.isAvailable, true)) as BuilderOption[];
+    // Fetch configuration from DB based on availability and not deleted
+    const dbOptions = await db.select()
+        .from(builderOptions)
+        .where(
+            and(
+                eq(builderOptions.isAvailable, true),
+                eq(builderOptions.isDeleted, false)
+            )
+        ) as BuilderOption[];
 
     return (
         <>

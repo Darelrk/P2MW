@@ -16,6 +16,7 @@ interface ProductCardProps {
     image: string;
     description?: string | null;
     stock: number;
+    soldCount?: number;
     isExpress?: boolean;
     priority?: boolean;
     hasAR?: boolean;
@@ -28,6 +29,7 @@ export const ProductCard = memo(function ProductCard({
     image,
     description,
     stock,
+    soldCount = 0,
     isExpress = false,
     priority = false,
     hasAR = false,
@@ -111,9 +113,16 @@ export const ProductCard = memo(function ProductCard({
                             <p className="mt-1 font-body text-xs text-forest/50 line-clamp-2 min-h-[2rem]">
                                 {description || "Cotton Milk / Katun Combed + Premium Wrap"}
                             </p>
-                            <p className="mt-2 font-body text-lg font-bold text-terracotta">
-                                {price}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                                <p className="font-body text-lg font-bold text-terracotta">
+                                    {price}
+                                </p>
+                                {soldCount > 0 && (
+                                    <span className="text-[10px] bg-forest/5 text-forest/60 px-2 py-0.5 rounded-full font-body font-medium">
+                                        {soldCount} Terjual
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         {/* CTA on Hover (Desktop) / Always (Mobile) */}
@@ -189,6 +198,7 @@ export const ProductCard = memo(function ProductCard({
     return prevProps.name === nextProps.name &&
         prevProps.price === nextProps.price &&
         prevProps.stock === nextProps.stock &&
+        prevProps.soldCount === nextProps.soldCount &&
         prevProps.image === nextProps.image &&
         prevProps.priority === nextProps.priority &&
         prevProps.hasAR === nextProps.hasAR;
