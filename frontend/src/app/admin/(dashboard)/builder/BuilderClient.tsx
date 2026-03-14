@@ -22,7 +22,7 @@ export default function BuilderClient({ initialData }: { initialData: BuilderOpt
         handleDelete
     } = useBuilder()
 
-    const filteredData = initialData.filter(o => view === 'active' ? !o.isDeleted : o.isDeleted)
+    const filteredData = (initialData || []).filter(o => view === 'active' ? !o.isDeleted : o.isDeleted)
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-forest/10 overflow-hidden">

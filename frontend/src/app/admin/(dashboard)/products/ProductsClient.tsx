@@ -24,7 +24,7 @@ export default function ProductsClient({ initialData }: { initialData: Product[]
         handleDelete
     } = useProducts()
 
-    const filteredData = initialData.filter(p => view === 'active' ? !p.isDeleted : p.isDeleted)
+    const filteredData = (initialData || []).filter(p => view === 'active' ? !p.isDeleted : p.isDeleted)
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-forest/10 overflow-hidden">

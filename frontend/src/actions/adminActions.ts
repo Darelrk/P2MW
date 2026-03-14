@@ -32,12 +32,14 @@ export async function createProduct(formData: FormData) {
         const allowAffordable = mainTier === 'affordable'
         const allowStandard = mainTier === 'standard'
         const allowPremium = mainTier === 'premium'
+        const allowSpecial = formData.get('allowSpecial') === 'true'
 
         await db.insert(products).values({
             ...validated,
             allowAffordable,
             allowStandard,
             allowPremium,
+            allowSpecial,
             isDeleted: false,
         })
 
@@ -63,12 +65,14 @@ export async function updateProduct(id: string, formData: FormData) {
         const allowAffordable = mainTier === 'affordable'
         const allowStandard = mainTier === 'standard'
         const allowPremium = mainTier === 'premium'
+        const allowSpecial = formData.get('allowSpecial') === 'true'
 
         await db.update(products).set({
             ...validated,
             allowAffordable,
             allowStandard,
             allowPremium,
+            allowSpecial,
         }).where(eq(products.id, id))
 
         revalidatePath('/express')

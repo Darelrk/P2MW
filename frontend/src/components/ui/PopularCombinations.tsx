@@ -33,7 +33,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
     
     // Memoize formatted products for performance and clean code
     const products = React.useMemo(() => {
-        if (initialProducts.length > 0) {
+        if (initialProducts && initialProducts.length > 0) {
             return initialProducts.map(p => {
                 const prices = [p.priceAffordable, p.priceStandard, p.pricePremium, p.priceSpecial]
                     .filter((_, i) => [p.allowAffordable, p.allowStandard, p.allowPremium, p.allowSpecial][i]);
