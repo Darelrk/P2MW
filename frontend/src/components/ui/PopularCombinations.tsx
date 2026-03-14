@@ -3,30 +3,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProductCard } from "./ProductCard";
+import { cn } from "@/lib/cn";
 
-const POPULAR_COMBOS = [
-    {
-        id: "p1",
-        name: "Forest Bloom",
-        price: "Rp 185.000",
-        image: "/images/forest-bloom.png",
-        stock: 5,
-    },
-    {
-        id: "p2",
-        name: "Pastel Dream",
-        price: "Rp 210.000",
-        image: "/images/pastel-dream.png",
-        stock: 2,
-    },
-    {
-        id: "p3",
-        name: "Red Romance",
-        price: "Rp 195.000",
-        image: "/images/red-romance.png",
-        stock: 8,
-    },
-];
 
 interface PopularCombinationsProps {
     initialProducts?: any[];
@@ -34,42 +12,77 @@ interface PopularCombinationsProps {
 
 export function PopularCombinations({ initialProducts = [] }: PopularCombinationsProps) {
     const [currentIndex, setCurrentIndex] = React.useState(0);
-    const containerRef = React.useRef<HTMLDivElement>(null);
+    const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         // Pre-warm library AR saat user masuk ke area katalog
         import("@google/model-viewer").catch(console.error);
     }, []);
 
-    // Gunakan data dari database jika ada, jika tidak gunakan hardcoded (backup)
-    const products = initialProducts.length > 0 ? initialProducts.map(p => {
-        // Cari harga terendah dari tier yang aktif
-        const prices = [p.priceAffordable, p.priceStandard, p.pricePremium, p.priceSpecial]
-            .filter((_, i) => [p.allowAffordable, p.allowStandard, p.allowPremium, p.allowSpecial][i]);
-        const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
-        
-        return {
-            id: p.id,
-            name: p.name,
-            price: `Rp ${minPrice.toLocaleString('id-ID')}`,
-            image: p.imageUrl || "/images/forest-bloom.png",
-            stock: p.stock,
-            description: p.description,
-            modelUrl: p.modelUrl,
-            soldCount: p.soldCount
-        };
-    }) : [
-        { id: "p1", name: "Forest Bloom", price: "Rp 185.000", image: "/images/forest-bloom.png", stock: 5, description: "Buket rajut premium dengan nuansa hutan.", modelUrl: null, soldCount: 0 },
-        { id: "p2", name: "Pastel Dream", price: "Rp 210.000", image: "/images/pastel-dream.png", stock: 2, description: "Kombinasi warna pastel yang elegan.", modelUrl: null, soldCount: 0 },
-        { id: "p3", name: "Red Romance", price: "Rp 195.000", image: "/images/red-romance.png", stock: 8, description: "Mawar merah klasik untuk orang tersayang.", modelUrl: null, soldCount: 0 },
-    ];
+    // Sync dots with scroll position on mobile
+    const handleScroll = () => {
+        if (!scrollContainerRef.current) return;
+        const container = scrollContainerRef.current;
+        const scrollPosition = container.scrollLeft;
+        const itemWidth = container.offsetWidth * 0.8; // Approximate item width on mobile
+        const newIndex = Math.round(scrollPosition / itemWidth);
+        if (newIndex !== currentIndex && newIndex >= 0 && newIndex < products.length) {
+            setCurrentIndex(newIndex);
+        }
+    };
+    
+    // Memoize formatted products for performance and clean code
+    const products = React.useMemo(() => {
+        if (initialProducts.length > 0) {
+            return initialProducts.map(p => {
+                const prices = [p.priceAffordable, p.priceStandard, p.pricePremium, p.priceSpecial]
+                    .filter((_, i) => [p.allowAffordable, p.allowStandard, p.allowPremium, p.allowSpecial][i]);
+                const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+                
+                return {
+                    id: p.id,
+                    name: p.name,
+                    price: `Rp ${minPrice.toLocaleString('id-ID')}`,
+                    image: p.imageUrl || "/images/forest-bloom.png",
+                    stock: p.stock,
+                    description: p.description,
+                    modelUrl: p.modelUrl,
+                    soldCount: p.soldCount
+                };
+            });
+        }
+        return [
+            { id: "p1", name: "Forest Bloom", price: "Rp 185.000", image: "/images/forest-bloom.png", stock: 5, description: "Buket rajut premium dengan nuansa hutan.", modelUrl: null, soldCount: 0 },
+            { id: "p2", name: "Pastel Dream", price: "Rp 210.000", image: "/images/pastel-dream.png", stock: 2, description: "Kombinasi warna pastel yang elegan.", modelUrl: null, soldCount: 0 },
+            { id: "p3", name: "Red Romance", price: "Rp 195.000", image: "/images/red-romance.png", stock: 8, description: "Mawar merah klasik untuk orang tersayang.", modelUrl: null, soldCount: 0 },
+        ];
+    }, [initialProducts]);
 
-    const next = () => setCurrentIndex((prev) => (prev + 1) % products.length);
-    const prev = () => setCurrentIndex((prev) => (prev - 1 + products.length) % products.length);
+    const next = () => {
+        const newIndex = (currentIndex + 1) % products.length;
+        setCurrentIndex(newIndex);
+        if (window.innerWidth < 768 && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+                left: newIndex * (scrollContainerRef.current.offsetWidth * 0.8),
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    const prev = () => {
+        const newIndex = (currentIndex - 1 + products.length) % products.length;
+        setCurrentIndex(newIndex);
+        if (window.innerWidth < 768 && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+                left: newIndex * (scrollContainerRef.current.offsetWidth * 0.8),
+                behavior: 'smooth'
+            });
+        }
+    };
 
     return (
-        <section className="bg-cream py-24 px-4 md:px-8 overflow-hidden">
-            <div className="mx-auto max-w-7xl">
+        <section className="bg-cream py-24 px-0 md:px-8 overflow-hidden">
+            <div className="mx-auto max-w-7xl px-4 md:px-0">
                 <div className="mb-16 flex flex-col md:flex-row items-center md:items-end justify-between text-center md:text-left">
                     <div className="max-w-xl">
                         <span className="font-body text-xs font-bold uppercase tracking-widest text-blush">Produk Terlaris</span>
@@ -98,24 +111,20 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
 
                 {/* Carousel Mechanism */}
                 <div className="relative">
-                    <motion.div
-                        className="flex items-center justify-center gap-4 md:gap-12"
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        onDragEnd={(_, info) => {
-                            if (info.offset.x < -50) next();
-                            else if (info.offset.x > 50) prev();
-                        }}
+                    {/* Mobile: Native Scroll Snap | Desktop: Framer Motion Drag */}
+                    <div 
+                        ref={scrollContainerRef}
+                        onScroll={handleScroll}
+                        className={cn(
+                            "flex items-center gap-6 md:gap-12 transition-all duration-500",
+                            "overflow-x-auto snap-x snap-mandatory scrollbar-hide px-8 pb-8 md:overflow-visible md:snap-none md:justify-center md:px-0 md:pb-0"
+                        )}
                     >
                         <AnimatePresence mode="popLayout" initial={false}>
                             {products.map((product, index) => {
-                                // Logic for 3 items carousel
                                 const isActive = index === currentIndex;
                                 const isPrev = index === (currentIndex - 1 + products.length) % products.length;
                                 const isNext = index === (currentIndex + 1) % products.length;
-
-                                // Only show these 3
-                                if (!isActive && !isPrev && !isNext) return null;
 
                                 return (
                                     <motion.div
@@ -126,7 +135,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                             opacity: isActive ? 1 : 0.4,
                                             scale: isActive ? 1.05 : 0.85,
                                             zIndex: isActive ? 20 : 10,
-                                            x: isActive ? 0 : (isPrev ? -20 : 20),
+                                            x: typeof window !== "undefined" && window.innerWidth >= 768 ? (isActive ? 0 : (isPrev ? -20 : 20)) : 0,
                                             filter: isActive ? 'blur(0px)' : 'blur(2px)'
                                         }}
                                         exit={{ opacity: 0, scale: 0.5 }}
@@ -135,7 +144,16 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                             stiffness: 300,
                                             damping: 30
                                         }}
-                                        className="w-full max-w-[300px] md:max-w-[340px] shrink-0"
+                                        className={cn(
+                                            "w-[80vw] max-w-[300px] md:w-full md:max-w-[340px] shrink-0 snap-center",
+                                            !isActive && "md:block hidden"
+                                        )}
+                                        drag={typeof window !== "undefined" && window.innerWidth >= 768 ? "x" : false}
+                                        dragConstraints={{ left: 0, right: 0 }}
+                                        onDragEnd={(_, info) => {
+                                            if (info.offset.x < -50) next();
+                                            else if (info.offset.x > 50) prev();
+                                        }}
                                     >
                                         <ProductCard
                                             name={product.name}
@@ -151,14 +169,22 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                 );
                             })}
                         </AnimatePresence>
-                    </motion.div>
+                    </div>
                     
                     {/* Snake Dots Navigation */}
                     <div className="flex justify-center items-center gap-3 mt-16">
                         {products.map((_, i) => (
                             <button
                                 key={i}
-                                onClick={() => setCurrentIndex(i)}
+                                onClick={() => {
+                                    setCurrentIndex(i);
+                                    if (scrollContainerRef.current) {
+                                        scrollContainerRef.current.scrollTo({
+                                            left: i * (scrollContainerRef.current.offsetWidth * 0.8),
+                                            behavior: 'smooth'
+                                        });
+                                    }
+                                }}
                                 className="relative py-2 focus:outline-none"
                             >
                                 <motion.div

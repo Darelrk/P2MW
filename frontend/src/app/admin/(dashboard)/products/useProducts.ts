@@ -55,6 +55,7 @@ export function useProducts() {
             
             // Use abstract validation
             const validatedData = getValidatedData(formData);
+            if (!validatedData) throw new Error('Data validasi tidak ditemukan');
 
             const { finalImageUrl, finalModelUrl } = await processFileUploads(
                 editingProduct?.imageUrl,

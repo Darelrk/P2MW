@@ -42,6 +42,7 @@ export function useBuilder() {
             
             // Use abstract validation
             const validatedData = getValidatedData(formData);
+            if (!validatedData) throw new Error('Data validasi tidak ditemukan');
 
             const { finalImageUrl } = await processFileUploads(
                 editingOption?.imageUrl
