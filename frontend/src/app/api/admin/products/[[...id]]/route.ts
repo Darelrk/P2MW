@@ -59,8 +59,9 @@ function extractId(params: any, url: string) {
     return null;
 }
 
-export async function GET(request: Request, { params }: { params: { id?: string[] } }) {
+export async function GET(request: Request, props: { params: Promise<{ id?: string[] }> }) {
     try {
+        const params = await props.params;
         const url = request.url;
         logRequest(url, "GET", { params });
         
@@ -149,8 +150,9 @@ export async function POST(request: Request) {
     }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id?: string[] } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id?: string[] }> }) {
     try {
+        const params = await props.params;
         const url = request.url;
         if (!checkAuth(request)) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -171,8 +173,9 @@ export async function PATCH(request: Request, { params }: { params: { id?: strin
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id?: string[] } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id?: string[] }> }) {
     try {
+        const params = await props.params;
         const url = request.url;
         if (!checkAuth(request)) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
