@@ -21,7 +21,8 @@ export default function ProductsClient({ initialData }: { initialData: Product[]
         handleImageChange,
         handleModelChange,
         handleSubmit,
-        handleDelete
+        handleDelete,
+        deletingId
     } = useProducts()
 
     const filteredData = (initialData || []).filter(p => view === 'active' ? !p.isDeleted : p.isDeleted)
@@ -70,6 +71,7 @@ export default function ProductsClient({ initialData }: { initialData: Product[]
 
             <ProductTable
                 products={filteredData}
+                deletingId={deletingId}
                 onEdit={(p) => handleOpenModal(p)}
                 onDelete={handleDelete}
             />

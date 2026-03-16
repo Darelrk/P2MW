@@ -1,4 +1,5 @@
 'use client'
+import React from 'react';
 
 import { createProduct, updateProduct, deleteProduct } from '@/actions/adminActions';
 import { useBaseCrud } from '@/hooks/useBaseCrud';
@@ -25,6 +26,8 @@ export type Product = {
 };
 
 export function useProducts() {
+    const [deletingId, setDeletingId] = React.useState<string | null>(null);
+
     const {
         isModalOpen,
         editingItem: editingProduct,
@@ -96,6 +99,7 @@ export function useProducts() {
     const handleDelete = async (id: string, name: string) => {
         if (!window.confirm(`Hapus produk "${name}"?`)) return;
 
+        setDeletingId(id);
         const promise = deleteProduct(id);
 
         toast.promise(promise, {
@@ -108,6 +112,8 @@ export function useProducts() {
             await promise;
         } catch (err) {
             console.error(err);
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -115,6 +121,7 @@ export function useProducts() {
         isModalOpen,
         editingProduct,
         isSubmitting,
+        deletingId,
         imagePreview,
         modelFileName,
         handleOpenModal,

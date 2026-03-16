@@ -72,13 +72,14 @@ export function StepContent() {
                     exit="exit"
                 >
                     {step === 0 && (
-                        <div>
+                        <div data-testid="step-flowers">
                             <h3 className="mb-4 font-display text-xl text-forest">Pilih Jenis Bunga</h3>
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                                 {flowersDb.map((f) => (
                                     <button
                                         key={f.name}
                                         onClick={() => setFlower(f.name as FlowerType)}
+                                        data-testid={`flower-opt-${f.name.toLowerCase()}`}
                                         className={cn(
                                             "flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all duration-150 relative",
                                             flower === f.name
@@ -102,13 +103,14 @@ export function StepContent() {
                     )}
 
                     {step === 1 && (
-                        <div>
+                        <div data-testid="step-colors">
                             <h3 className="mb-4 font-display text-xl text-forest">Pilih Warna</h3>
                             <div className="flex flex-wrap gap-3">
                                 {colorsDb.map((c) => (
                                     <button
                                         key={c.name}
                                         onClick={() => setColor(c.name as FlowerColor)}
+                                        data-testid={`color-opt-${c.name.toLowerCase()}`}
                                         className={cn(
                                             "group flex flex-col items-center gap-2 rounded-lg p-3 transition-all duration-150 relative",
                                             color === c.name && "scale-[1.05]"
@@ -136,13 +138,14 @@ export function StepContent() {
                     )}
 
                     {step === 2 && (
-                        <div>
+                        <div data-testid="step-wraps">
                             <h3 className="mb-4 font-display text-xl text-forest">Pilih Wrapping</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 {wrapsDb.map((w) => (
                                     <button
                                         key={w.name}
                                         onClick={() => setWrap(w.name as WrapStyle)}
+                                        data-testid={`wrap-opt-${w.name.toLowerCase()}`}
                                         className={cn(
                                             "rounded-lg border-2 p-4 text-left transition-all duration-150 relative",
                                             wrap === w.name
@@ -168,11 +171,12 @@ export function StepContent() {
                     )}
 
                     {step === 3 && (
-                        <div>
+                        <div data-testid="step-message">
                             <h3 className="mb-4 font-display text-xl text-forest">Kartu Ucapan</h3>
                             <textarea
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
+                                data-testid="message-input"
                                 placeholder="Tulis pesan spesialmu di sini... (opsional)"
                                 rows={4}
                                 className={cn(
@@ -195,6 +199,7 @@ export function StepContent() {
                 <button
                     onClick={prevStep}
                     disabled={step === 0}
+                    data-testid="prev-step-btn"
                     className={cn(
                         "rounded-lg border-2 px-5 py-2 font-body text-sm font-medium transition-all",
                         step === 0
@@ -207,16 +212,27 @@ export function StepContent() {
 
                 {step < 3 ? (
                     <button
-                        onClick={nextStep}
-                        disabled={
-                            (step === 0 && !flower) ||
-                            (step === 1 && !color) ||
-                            (step === 2 && !wrap)
-                        }
+                        onClick={() => {
+                            if (step === 0 && !flower) {
+                                import("sonner").then(({ toast }) => toast.error("Pilih bunga terlebih dahulu"));
+                                return;
+                            }
+                            if (step === 1 && !color) {
+                                import("sonner").then(({ toast }) => toast.error("Pilih warna terlebih dahulu"));
+                                return;
+                            }
+                            if (step === 2 && !wrap) {
+                                import("sonner").then(({ toast }) => toast.error("Pilih wrapping terlebih dahulu"));
+                                return;
+                            }
+                            nextStep();
+                        }}
+                        data-testid="next-step-btn"
                         className={cn(
                             "rounded-lg bg-forest px-5 py-2.5 font-body text-sm font-semibold text-cream transition-all",
-                            "disabled:opacity-40 disabled:cursor-not-allowed",
-                            "hover:bg-forest-light"
+                            ((step === 0 && !flower) || (step === 1 && !color) || (step === 2 && !wrap)) 
+                                ? "opacity-60 cursor-not-allowed bg-forest/80" 
+                                : "hover:bg-forest-light"
                         )}
                     >
                         Lanjut
@@ -260,6 +276,7 @@ export function StepContent() {
                             // Reset builder
                             useBouquetStore.getState().reset();
                         }}
+                        data-testid="finish-builder-btn"
                         className={cn(
                             "rounded-lg bg-terracotta px-6 py-2.5 font-body text-sm font-bold text-white transition-all",
                             "hover:brightness-110"

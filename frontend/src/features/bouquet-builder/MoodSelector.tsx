@@ -74,13 +74,28 @@ export function MoodSelector() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8 rounded-3xl border border-forest/5 bg-white/60 p-6 shadow-card backdrop-blur-sm"
+            data-testid="mood-selector"
         >
-            <div className="mb-1 font-body text-xs font-bold uppercase tracking-widest text-forest/40">
-                Mulai dari mood
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <div className="mb-1 font-body text-xs font-bold uppercase tracking-widest text-forest/40">
+                        Mulai dari mood
+                    </div>
+                    <h3 className="font-display text-xl font-bold text-forest">
+                        Pilih nuansa
+                    </h3>
+                </div>
+                <button 
+                    onClick={() => {
+                        // Just an indicator for bots that they can proceed without preset
+                        console.log("Onboarding skipped");
+                    }}
+                    className="text-[10px] font-bold uppercase tracking-wider text-forest/30 hover:text-forest/60 transition-colors"
+                    data-testid="skip-mood-btn"
+                >
+                    Pilih Manual →
+                </button>
             </div>
-            <h3 className="mb-4 font-display text-xl font-bold text-forest">
-                Pilih nuansa
-            </h3>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {MOODS.map((mood, i) => (
@@ -91,6 +106,7 @@ export function MoodSelector() {
                         transition={{ delay: 0.1 + i * 0.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => applyPreset(mood)}
+                        data-testid={`mood-btn-${mood.key}`}
                         className={cn(
                             "flex flex-col items-center gap-2 rounded-2xl border-2 p-4 transition-all duration-300",
                             mood.accent

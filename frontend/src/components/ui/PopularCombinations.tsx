@@ -4,6 +4,7 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ProductCard } from "./ProductCard";
 import { cn } from "@/lib/cn";
+import { useRouter } from "next/navigation";
 
 
 interface PopularCombinationsProps {
@@ -14,6 +15,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
     const [currentIndex, setCurrentIndex] = React.useState(0);
     const [isMounted, setIsMounted] = React.useState(false);
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     React.useEffect(() => {
         setIsMounted(true);
@@ -158,6 +160,7 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                         }}
                                     >
                                         <ProductCard
+                                            id={product.id}
                                             name={product.name}
                                             price={product.price}
                                             image={product.image}
@@ -166,6 +169,8 @@ export function PopularCombinations({ initialProducts = [] }: PopularCombination
                                             hasAR={!!product.modelUrl}
                                             modelUrl={product.modelUrl || undefined}
                                             soldCount={product.soldCount}
+                                            onClick={() => router.push("/express")}
+                                            priority={index < 2}
                                         />
                                     </motion.div>
                                 );

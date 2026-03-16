@@ -141,6 +141,7 @@ export function ExpressCatalog({ initialProducts }: ExpressCatalogProps) {
                             className="animate-in fade-in duration-300 ease-out"
                         >
                             <ProductCard
+                                id={product.id}
                                 name={product.name}
                                 price={(product as any).price || "Rp 0"}
                                 image={product.image || "/images/placeholder.png"}

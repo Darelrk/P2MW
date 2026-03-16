@@ -1,15 +1,17 @@
 import React from 'react';
 import Image from 'next/image';
 import { Edit2, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/cn';
 import type { Product } from './useProducts';
 
 interface ProductTableProps {
     products: Product[];
+    deletingId?: string | null;
     onEdit: (product: Product) => void;
     onDelete: (id: string, name: string) => void;
 }
 
-export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) {
+export function ProductTable({ products, deletingId, onEdit, onDelete }: ProductTableProps) {
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-forest/80">
@@ -24,8 +26,16 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-forest/5">
-                    {products.map((item, index) => (
-                        <tr key={item.id} className="hover:bg-cream-light/50 transition-colors">
+                    {products.map((item, index) => {
+                        const isDeleting = deletingId === item.id;
+                        return (
+                            <tr 
+                                key={item.id} 
+                                className={cn(
+                                    "hover:bg-cream-light/50 transition-all duration-300",
+                                    isDeleting && "opacity-40 grayscale pointer-events-none scale-[0.98] bg-red-50"
+                                )}
+                            >
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-cream-dark/20 rounded-lg overflow-hidden relative flex-shrink-0">
@@ -101,7 +111,8 @@ export function ProductTable({ products, onEdit, onDelete }: ProductTableProps) 
                                 </button>
                             </td>
                         </tr>
-                    ))}
+                        );
+                    })}
                     {products.length === 0 && (
                         <tr>
                             <td colSpan={6} className="px-6 py-8 text-center text-forest/50">

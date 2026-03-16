@@ -21,11 +21,11 @@ export function ProgressStepper() {
     const progress = ((step + 1) / STEPS.length) * 100;
 
     return (
-        <div className="mb-8">
+        <div className="mb-8" data-testid="progress-stepper">
             {/* Progress Ring + Percentage */}
             <div className="flex items-center gap-6 mb-6">
                 <ProgressRing progress={progress} step={step} />
-                <div>
+                <div data-testid="progress-text">
                     <p className="font-display text-2xl font-bold text-forest">
                         {Math.round(progress)}%
                     </p>
@@ -48,6 +48,7 @@ export function ProgressStepper() {
                                 opacity: isCurrent || isCompleted ? 1 : 0.4,
                                 scale: isCurrent ? 1.05 : 1,
                             }}
+                            data-testid={`step-pill-${i}`}
                             className={cn(
                                 "flex items-center gap-1.5 rounded-full px-3 py-1.5 font-body text-xs font-medium transition-colors duration-300 border",
                                 isCurrent

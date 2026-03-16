@@ -18,6 +18,22 @@ const nextConfig: NextConfig = {
     ],
     qualities: [25, 50, 65, 75, 90, 100],
     minimumCacheTTL: 31536000
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/auth/login',
+        destination: '/api/admin/login',
+      },
+      {
+        source: '/custom/preview',
+        destination: '/api/custom/preview',
+      },
+      {
+        source: '/admin/products/:id*',
+        destination: '/api/admin/products/:id*',
+      }
+    ]
   }
 };
 
