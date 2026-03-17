@@ -1,8 +1,16 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from '@/utils/supabase/auth-middleware'
+import { rateLimitMiddleware } from './middleware/rateLimit'
 
 export async function middleware(request: NextRequest) {
-    return await updateSession(request)
+    // Apply rate limiting first (before session management)
+    const rateLimitResponse = await rateLimitMiddleware(request);
+    if (rateLimitResponse) {
+        return rateLimitResponse;
+    }
+    
+    // Then apply session management
+    return await updateSession(request);
 }
 
 export const config = {
