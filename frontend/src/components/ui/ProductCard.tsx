@@ -53,7 +53,7 @@ export const ProductCard = memo(function ProductCard({
         e.stopPropagation();
 
         addItem({
-            id: `express-${name.toLowerCase().replace(/\s+/g, '-')}`,
+            id, // Use the actual database UUID
             type: "express",
             name,
             price: numericPrice,

@@ -24,5 +24,28 @@ export const BuilderOptionSchema = z.object({
     imageUrl: z.preprocess((v) => (v === '' || v === 'null' || v === 'undefined' ? null : v), z.string().nullable().optional()),
 });
 
+export const OrderSchema = z.object({
+    customerName: z.string().min(1, 'Nama wajib diisi'),
+    customerPhone: z.string().regex(/^(?:\+62|62|0)8[1-9][0-9]{7,11}$/, 'Nomor HP tidak valid (gunakan format: 08... atau 628...)'),
+    customerAddress: z.string().min(1, 'Alamat wajib diisi'),
+    deliveryType: z.string().min(1, 'Tipe pengiriman wajib diisi'),
+    totalAmount: z.number().min(0),
+    paymentMethod: z.enum(['full', 'dp', 'final']),
+    items: z.array(z.object({
+        itemType: z.string(),
+        productId: z.string().uuid().nullable().optional(),
+        customDetails: z.record(z.string(), z.any()).nullable().optional(),
+        quantity: z.number().int().min(1),
+        subtotal: z.number().min(0),
+    })).min(1, 'Minimal harus ada 1 item'),
+});
+
+export const PaymentProofSchema = z.object({
+    orderId: z.string().uuid('ID Pesanan tidak valid'),
+    isFinal: z.boolean().default(false),
+});
+
 export type ProductInput = z.infer<typeof ProductSchema>;
 export type BuilderOptionInput = z.infer<typeof BuilderOptionSchema>;
+export type OrderInput = z.infer<typeof OrderSchema>;
+export type PaymentProofInput = z.infer<typeof PaymentProofSchema>;

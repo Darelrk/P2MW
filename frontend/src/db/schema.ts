@@ -57,13 +57,27 @@ export const builderOptions = pgTable('builder_options', {
 // 3. ORDERS TABLE
 export const orders = pgTable('orders', {
     id: uuid('id').defaultRandom().primaryKey(),
+    orderNumber: varchar('order_number', { length: 30 }).unique().notNull(), // Format: AMR-YYMMDD-XXXX
     customerName: varchar('customer_name', { length: 256 }).notNull(),
+    customerPhone: varchar('customer_phone', { length: 20 }).notNull(), // WhatsApp number
     customerAddress: text('customer_address').notNull(),
     deliveryType: varchar('delivery_type', { length: 50 }).notNull(), // 'express' | 'relaxed'
     totalAmount: integer('total_amount').notNull(),
-    status: varchar('status', { length: 50 }).default('pending').notNull(), // 'pending', 'completed'
+    paymentMethod: varchar('payment_method', { length: 20 }).default('full').notNull(), // 'full' | 'dp' | 'final'
+    dpAmount: integer('dp_amount').default(0).notNull(), // Down payment amount (0 if full or final)
+    paidAmount: integer('paid_amount').default(0).notNull(), // How much has been paid so far
+    paymentProofUrl: text('payment_proof_url'),
+    finalPaymentProofUrl: text('final_payment_proof_url'),
+    status: varchar('status', { length: 50 }).default('pending').notNull(), // 'pending' | 'dp_paid' | 'paid' | 'processing' | 'completed' | 'cancelled'
+    adminNotes: text('admin_notes'), // Internal notes (e.g., "Transfer via BCA a/n Budi")
+    verifiedAt: timestamp('verified_at'), // When payment was verified
     createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+    statusIdx: index('order_status_idx').on(table.status),
+    orderNumberIdx: index('order_number_idx').on(table.orderNumber),
+    createdAtIdx: index('order_created_at_idx').on(table.createdAt),
+}));
 
 // 4. ORDER ITEMS TABLE
 export const orderItems = pgTable('order_items', {
@@ -76,4 +90,26 @@ export const orderItems = pgTable('order_items', {
     subtotal: integer('subtotal').notNull(),
 }, (table) => ({
     orderIdIdx: index('order_item_order_id_idx').on(table.orderId),
+}));
+
+// RELATIONS
+import { relations } from 'drizzle-orm';
+
+export const ordersRelations = relations(orders, ({ many }) => ({
+    items: many(orderItems),
+}));
+
+export const orderItemsRelations = relations(orderItems, ({ one }) => ({
+    order: one(orders, {
+        fields: [orderItems.orderId],
+        references: [orders.id],
+    }),
+    product: one(products, {
+        fields: [orderItems.productId],
+        references: [products.id],
+    }),
+}));
+
+export const productsRelations = relations(products, ({ many }) => ({
+    orderItems: many(orderItems),
 }));

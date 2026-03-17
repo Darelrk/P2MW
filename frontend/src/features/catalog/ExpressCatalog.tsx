@@ -34,6 +34,7 @@ export interface FormattedProduct {
     image: string;
     stock: number;
     soldCount: number;
+    price: string;
     activeTiers: string[];
     tiers: Record<string, { enabled: boolean; val: number }>;
 }
@@ -143,7 +144,7 @@ export function ExpressCatalog({ initialProducts }: ExpressCatalogProps) {
                             <ProductCard
                                 id={product.id}
                                 name={product.name}
-                                price={(product as any).price || "Rp 0"}
+                                price={product.price || "Rp 0"}
                                 image={product.image || "/images/placeholder.png"}
                                 description={product.description}
                                 stock={product.stock}

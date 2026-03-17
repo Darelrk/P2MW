@@ -3,11 +3,13 @@ import { fadeUp } from "@/lib/animations";
 
 interface CheckoutStepOneProps {
     value: string;
+    phoneValue: string;
     onChange: (val: string) => void;
+    onPhoneChange: (val: string) => void;
     onNext: (e: React.FormEvent) => void;
 }
 
-export function CheckoutStepOne({ value, onChange, onNext }: CheckoutStepOneProps) {
+export function CheckoutStepOne({ value, phoneValue, onChange, onPhoneChange, onNext }: CheckoutStepOneProps) {
     return (
         <motion.div
             key="step1"
@@ -45,10 +47,26 @@ export function CheckoutStepOne({ value, onChange, onNext }: CheckoutStepOneProp
                     />
                 </div>
 
+                <div className="group relative rounded-2xl bg-white/40 p-1 ring-1 ring-forest/10 transition-all focus-within:bg-white focus-within:ring-forest/30 focus-within:shadow-xl hover:ring-forest/20 backdrop-blur-sm">
+                    <div className="absolute left-6 top-1/2 -translate-y-1/2 text-forest/20 transition-colors group-focus-within:text-terracotta">
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="tel"
+                        required
+                        value={phoneValue}
+                        onChange={(e) => onPhoneChange(e.target.value)}
+                        placeholder="Nomor WhatsApp (misal: 6281234567890)"
+                        className="w-full bg-transparent py-5 pl-16 pr-6 font-body text-xl text-forest placeholder-forest/30 outline-none transition-all"
+                    />
+                </div>
+
                 <div className="flex justify-end">
                     <button
                         type="submit"
-                        disabled={value.trim() === ""}
+                        disabled={value.trim() === "" || phoneValue.trim() === ""}
                         className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-forest px-8 py-4 font-body text-sm font-bold tracking-widest text-cream shadow-xl transition-all hover:bg-forest-light disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-1 hover:shadow-2xl"
                     >
                         <span>LANJUTKAN</span>

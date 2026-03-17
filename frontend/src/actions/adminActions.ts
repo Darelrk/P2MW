@@ -1,10 +1,12 @@
 'use server'
 
 import { revalidatePath, revalidateTag } from 'next/cache'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { products, builderOptions } from '@/db/schema'
+import { products, builderOptions, orders } from '@/db/schema'
 import { createClient } from '@/utils/supabase/server'
+import { logger } from '@/utils/logger'
+import { AuthError, AppError } from '@/lib/errors'
 
 import { ProductSchema, BuilderOptionSchema } from '@/lib/validations'
 
@@ -12,7 +14,7 @@ async function ensureAdmin() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-        throw new Error('Unauthorized: Admin access required')
+        throw new AuthError('Anda harus login sebagai admin')
     }
 }
 
@@ -21,10 +23,10 @@ async function ensureAdmin() {
 // ==========================================
 
 export async function createProduct(formData: FormData) {
+    const ACTION = 'createProduct'
     try {
         await ensureAdmin()
         
-        // Convert FormData to entries object for Zod
         const rawData = Object.fromEntries(formData.entries())
         const validated = ProductSchema.parse(rawData)
 
@@ -43,18 +45,21 @@ export async function createProduct(formData: FormData) {
             isDeleted: false,
         })
 
+        logger.info(ACTION, 'Product created successfully', { name: validated.name })
+        revalidateTag('products', 'default')
+        revalidateTag('dashboard-stats', 'default')
         revalidatePath('/express')
         revalidatePath('/admin/products')
         revalidatePath('/')
         return { success: true }
     } catch (error) {
-        console.error('[Action Error] Failed to create product:', error)
-        const message = error instanceof Error ? error.message : 'Gagal membuat produk'
-        throw new Error(message)
+        logger.error(ACTION, 'Failed to create product', error)
+        throw error // Controller/UI should handle this
     }
 }
 
 export async function updateProduct(id: string, formData: FormData) {
+    const ACTION = 'updateProduct'
     try {
         await ensureAdmin()
         
@@ -75,28 +80,35 @@ export async function updateProduct(id: string, formData: FormData) {
             allowSpecial,
         }).where(eq(products.id, id))
 
+        logger.info(ACTION, 'Product updated successfully', { id, name: validated.name })
+        revalidateTag('products', 'default')
+        revalidateTag('dashboard-stats', 'default')
         revalidatePath('/express')
         revalidatePath('/admin/products')
         revalidatePath('/')
         return { success: true }
     } catch (error) {
-        console.error('[Action Error] Failed to update product:', error)
-        throw new Error(error instanceof Error ? error.message : 'Gagal memperbarui produk')
+        logger.error(ACTION, 'Failed to update product', error, { id })
+        throw error
     }
 }
 
 export async function deleteProduct(id: string) {
+    const ACTION = 'deleteProduct'
     try {
         await ensureAdmin()
         await db.update(products).set({ isDeleted: true }).where(eq(products.id, id))
 
+        logger.info(ACTION, 'Product marked as deleted', { id })
+        revalidateTag('products', 'default')
+        revalidateTag('dashboard-stats', 'default')
         revalidatePath('/express')
         revalidatePath('/admin/products')
         revalidatePath('/')
         return { success: true }
     } catch (error) {
-        console.error('[Action Error] Failed to delete product:', error)
-        throw new Error(error instanceof Error ? error.message : 'Gagal menghapus produk')
+        logger.error(ACTION, 'Failed to delete product', error, { id })
+        throw error
     }
 }
 
@@ -105,6 +117,7 @@ export async function deleteProduct(id: string) {
 // ==========================================
 
 export async function createBuilderOption(formData: FormData) {
+    const ACTION = 'createBuilderOption'
     try {
         await ensureAdmin()
         
@@ -116,17 +129,21 @@ export async function createBuilderOption(formData: FormData) {
             isDeleted: false,
         })
 
+        logger.info(ACTION, 'Builder option created', { name: validated.name })
+        revalidateTag('builder-options', 'default')
+        revalidateTag('dashboard-stats', 'default')
         revalidatePath('/custom')
         revalidatePath('/admin/builder')
         revalidatePath('/')
         return { success: true }
     } catch (error) {
-        console.error('[Action Error] Failed to create builder option:', error)
-        throw new Error(error instanceof Error ? error.message : 'Gagal membuat opsi rakitan')
+        logger.error(ACTION, 'Failed to create builder option', error)
+        throw error
     }
 }
 
 export async function updateBuilderOption(id: string, formData: FormData) {
+    const ACTION = 'updateBuilderOption'
     try {
         await ensureAdmin()
 
@@ -137,27 +154,34 @@ export async function updateBuilderOption(id: string, formData: FormData) {
             ...validated,
         }).where(eq(builderOptions.id, id))
 
+        logger.info(ACTION, 'Builder option updated', { id, name: validated.name })
+        revalidateTag('builder-options', 'default')
+        revalidateTag('dashboard-stats', 'default')
         revalidatePath('/custom')
         revalidatePath('/admin/builder')
         revalidatePath('/')
         return { success: true }
     } catch (error) {
-        console.error('[Action Error] Failed to update builder option:', error)
-        throw new Error(error instanceof Error ? error.message : 'Gagal memperbarui opsi rakitan')
+        logger.error(ACTION, 'Failed to update builder option', error, { id })
+        throw error
     }
 }
 
 export async function deleteBuilderOption(id: string) {
+    const ACTION = 'deleteBuilderOption'
     try {
         await ensureAdmin()
         await db.update(builderOptions).set({ isDeleted: true }).where(eq(builderOptions.id, id))
 
+        logger.info(ACTION, 'Builder option marked as deleted', { id })
+        revalidateTag('builder-options', 'default')
+        revalidateTag('dashboard-stats', 'default')
         revalidatePath('/custom')
         revalidatePath('/admin/builder')
         revalidatePath('/')
         return { success: true }
     } catch (error) {
-        console.error('[Action Error] Failed to delete builder option:', error)
-        throw new Error(error instanceof Error ? error.message : 'Gagal menghapus opsi rakitan')
+        logger.error(ACTION, 'Failed to delete builder option', error, { id })
+        throw error
     }
 }

@@ -1,6 +1,6 @@
 import { db } from '@/db'
-import { products, builderOptions } from '@/db/schema'
-import { eq, desc, and, ne } from 'drizzle-orm'
+import { products, builderOptions, orders, orderItems } from '@/db/schema'
+import { eq, desc, and, sql } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
 
 /**
@@ -25,12 +25,16 @@ export const getTopSellingProducts = unstable_cache(
 /**
  * Get all active products.
  */
-export async function getActiveProducts() {
-    return await db.query.products.findMany({
-        where: eq(products.isDeleted, false),
-        orderBy: [desc(products.id)],
-    })
-}
+export const getActiveProducts = unstable_cache(
+    async () => {
+        return await db.query.products.findMany({
+            where: eq(products.isDeleted, false),
+            orderBy: [desc(products.id)],
+        })
+    },
+    ['active-products'],
+    { revalidate: 3600, tags: ['products'] }
+)
 
 /**
  * Get deleted products (history).
@@ -43,20 +47,81 @@ export async function getDeletedProducts() {
 }
 
 /**
- * Get active builder options by category.
+ * Get active builder options.
  */
-export async function getBuilderOptions(category?: string) {
-    if (category) {
+export const getBuilderOptions = unstable_cache(
+    async (category?: string) => {
+        const whereClause = category 
+            ? and(eq(builderOptions.isDeleted, false), eq(builderOptions.category, category))
+            : eq(builderOptions.isDeleted, false);
+
         return await db.query.builderOptions.findMany({
-            where: and(
-                eq(builderOptions.isDeleted, false),
-                eq(builderOptions.category, category)
-            ),
+            where: whereClause,
             orderBy: [desc(builderOptions.name)],
         })
+    },
+    ['builder-options'],
+    { revalidate: 3600, tags: ['builder-options'] }
+)
+
+/**
+ * Get dashboard stats for admin.
+ * Performed using SQL aggregations for maximum efficiency.
+ */
+export const getDashboardStats = unstable_cache(
+    async () => {
+        try {
+            // Parallel execution of aggregation queries
+            const [orderStats, productCount, optionCount] = await Promise.all([
+                db.select({
+                    totalOrders: sql<number>`count(*)`,
+                    revenue: sql<number>`sum(case when status in ('paid', 'completed', 'shipped', 'dp_paid') then paid_amount else 0 end)`,
+                    pendingOrders: sql<number>`count(*) filter (where status in ('pending', 'dp_paid'))`
+                }).from(orders),
+                
+                db.select({ count: sql<number>`count(*)` })
+                    .from(products)
+                    .where(eq(products.isDeleted, false)),
+                
+                db.select({ count: sql<number>`count(*)` })
+                    .from(builderOptions)
+                    .where(eq(builderOptions.isDeleted, false))
+            ]);
+
+            return {
+                totalOrders: Number(orderStats[0].totalOrders) || 0,
+                revenue: Number(orderStats[0].revenue) || 0,
+                pendingOrders: Number(orderStats[0].pendingOrders) || 0,
+                totalProducts: Number(productCount[0].count) || 0,
+                totalOptions: Number(optionCount[0].count) || 0
+            };
+        } catch (error) {
+            console.error('Failed to fetch dashboard stats:', error);
+            return { totalOrders: 0, revenue: 0, pendingOrders: 0, totalProducts: 0, totalOptions: 0 };
+        }
+    },
+    ['dashboard-stats'],
+    { revalidate: 600, tags: ['orders', 'products', 'builder-options'] }
+)
+
+/**
+ * Get 5 most recent orders for dashboard.
+ */
+export async function getRecentOrders(limit = 5) {
+    try {
+        return await db.query.orders.findMany({
+            with: {
+                items: {
+                    with: {
+                        product: true
+                    }
+                }
+            },
+            orderBy: [desc(orders.createdAt)],
+            limit
+        });
+    } catch (error) {
+        console.error('Failed to fetch recent orders:', error);
+        return [];
     }
-    return await db.query.builderOptions.findMany({
-        where: eq(builderOptions.isDeleted, false),
-        orderBy: [desc(builderOptions.name)],
-    })
 }

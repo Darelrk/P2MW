@@ -21,8 +21,7 @@ export function InteractiveReceipt() {
     if (!mounted) return null;
 
     const totalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const tax = totalPrice * 0.11; // PPN 11%
-    const grandTotal = totalPrice + tax;
+    const grandTotal = totalPrice; // No Tax
 
     const receiptVariants: Variants = {
         hidden: { height: 0, opacity: 0 },
@@ -87,15 +86,7 @@ export function InteractiveReceipt() {
                 </div>
 
                 <motion.div variants={rowVariants} className="border-t-2 border-dashed border-forest/20 pt-6 space-y-2">
-                    <div className="flex justify-between">
-                        <span>SUBTOTAL</span>
-                        <span className="tabular-nums">{totalPrice.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                        <span>PAJAK (11%)</span>
-                        <span className="tabular-nums">{tax.toLocaleString("id-ID")}</span>
-                    </div>
-                    <div className="flex justify-between items-center mt-6 pt-4 border-t-2 border-solid border-forest/20">
+                    <div className="flex justify-between items-center mt-2 pt-4 border-t-2 border-solid border-forest/20">
                         <span className="font-bold text-lg">TOTAL</span>
                         <span className="font-bold text-xl tabular-nums tracking-tighter">Rp {grandTotal.toLocaleString("id-ID")}</span>
                     </div>

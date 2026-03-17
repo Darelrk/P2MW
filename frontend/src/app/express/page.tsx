@@ -3,33 +3,19 @@ import { ExpressHero } from "@/features/catalog/ExpressHero";
 import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
-import { db } from "@/db";
-import { products } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
-import { InferSelectModel } from "drizzle-orm";
-
-export const dynamic = "force-dynamic";
+import { getActiveProducts } from "@/db/queries";
 
 export const metadata = {
     title: "Koleksi Cepat — AMOUREA Bouquet",
     description: "Buket rajutan yang jadi dalam 3 jam. Pesan sekarang!",
 };
 
-type Product = InferSelectModel<typeof products>;
-
 export default async function ExpressPage() {
-    // Fetch data server-side - excluding deleted and inactive products
-    const dbProducts = await db.select()
-        .from(products)
-        .where(
-            and(
-                eq(products.status, true),
-                eq(products.isDeleted, false)
-            )
-        ) as Product[];
+    // Fetch data using cached query
+    const dbProducts = await getActiveProducts();
 
     // Format products on server for better LCP
-    const formattedProducts = dbProducts.map((p: Product) => {
+    const formattedProducts = dbProducts.map((p: any) => {
         const tiers = [
             { key: "affordable", enabled: p.allowAffordable, val: p.priceAffordable },
             { key: "standard", enabled: p.allowStandard, val: p.priceStandard },
@@ -47,7 +33,7 @@ export default async function ExpressPage() {
             priceNum: minPrice, 
             image: p.imageUrl || "/images/forest-bloom.png",
             stock: p.stock,
-            soldCount: p.soldCount, // Pass soldCount to frontend
+            soldCount: p.soldCount,
             activeTiers: enabledTiers.map(t => t.key),
             tiers: tiers.reduce((acc, t) => ({ ...acc, [t.key]: { enabled: t.enabled, val: t.val } }), {})
         };

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { LogOut, Package, Palette, LayoutDashboard } from "lucide-react";
+import { LogOut, Package, Palette, LayoutDashboard, ShoppingBag } from "lucide-react";
 import { logout } from "../login/actions";
 
 export const metadata: Metadata = {
@@ -29,6 +29,13 @@ export default function AdminLayout({
                     >
                         <LayoutDashboard className="w-5 h-5" />
                         Dashboard
+                    </Link>
+                    <Link
+                        href="/admin/orders"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-forest-light transition-colors text-cream/80 hover:text-white"
+                    >
+                        <ShoppingBag className="w-5 h-5" />
+                        Pesanan
                     </Link>
                     <Link
                         href="/admin/products"

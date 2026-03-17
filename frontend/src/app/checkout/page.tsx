@@ -14,6 +14,9 @@ export default function CheckoutPage() {
         formData,
         setFormData,
         items,
+        isSubmitting,
+        paymentMethod,
+        setPaymentMethod,
         handlePrevStep,
         handleSubmit,
         goBackToCatalog
@@ -48,7 +51,9 @@ export default function CheckoutPage() {
                             {step === 1 && (
                                 <CheckoutStepOne
                                     value={formData.name}
+                                    phoneValue={formData.phone}
                                     onChange={(v) => setFormData({ ...formData, name: v })}
+                                    onPhoneChange={(v) => setFormData({ ...formData, phone: v })}
                                     onNext={handleSubmit}
                                 />
                             )}
@@ -66,8 +71,11 @@ export default function CheckoutPage() {
                                 <CheckoutStepThree
                                     value={formData.duration}
                                     onChange={(v) => setFormData({ ...formData, duration: v })}
+                                    paymentMethod={paymentMethod}
+                                    onPaymentMethodChange={setPaymentMethod}
                                     onNext={handleSubmit}
                                     onBack={handlePrevStep}
+                                    isSubmitting={isSubmitting}
                                 />
                             )}
                         </AnimatePresence>
