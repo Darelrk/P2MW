@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'pub-b857999ef8284a87bae926095911f75c.r2.dev',
+        pathname: '/**',
+      },
     ],
     qualities: [25, 50, 65, 75, 90, 100],
     minimumCacheTTL: 31536000
