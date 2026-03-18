@@ -16,21 +16,22 @@ const R2_CONFIG = {
   allowedExtensions: {
     products: ['.jpg', '.jpeg', '.png', '.webp'],
     'product-models': ['.glb'],
+    'payment-proofs': ['.jpg', '.jpeg', '.png', '.webp'],
   } as Record<string, string[]>,
 }
 
 /**
  * Upload file to Cloudflare R2 with validation
  * @param formData - FormData with 'file' field
- * @param type - 'product' for images, 'model' for 3D models
+ * @param type - 'product' for images, 'model' for 3D models, 'proof' for payment proofs
  * @returns Upload result with public URL
  */
 export async function uploadToR2Action(
   formData: FormData,
-  type: 'product' | 'model' = 'product'
+  type: 'product' | 'model' | 'proof' = 'product'
 ) {
   const ACTION = 'uploadToR2Action'
-  const bucket = type === 'product' ? 'products' : 'product-models'
+  const bucket = type === 'product' ? 'products' : type === 'model' ? 'product-models' : 'payment-proofs'
 
   try {
     const file = formData.get('file') as File

@@ -31,41 +31,31 @@ export async function uploadPaymentProof(orderId: string, formData: FormData, is
             return { success: false, error: 'Format file tidak didukung (Gunakan JPG, PNG, atau WEBP)' }
         }
 
-        logger.info(ACTION, 'Uploading payment proof', { orderId, size: file.size, type: file.type })
+        logger.info(ACTION, 'Uploading payment proof to R2', { orderId, size: file.size, type: file.type })
 
-        const supabase = await createClient()
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${Date.now()}-${isFinal ? 'final' : 'dp'}.${fileExt}`
-        const filePath = `${orderId}/${fileName}`
+        const { uploadToR2Action } = await import('@/actions/uploadToR2')
+        const uploadResult = await uploadToR2Action(formData, 'proof')
 
-        const { error: uploadError } = await supabase.storage
-            .from('payment-proofs')
-            .upload(filePath, file, {
-                cacheControl: '3600',
-                upsert: true,
-            })
-
-        if (uploadError) {
-            logger.error(ACTION, 'Supabase storage error', uploadError, { orderId })
-            return { success: false, error: 'Gagal mengunggah file. Silakan hubungi admin.' }
+        if (!uploadResult.success || !uploadResult.fileName) {
+            logger.error(ACTION, 'R2 upload error', uploadResult.error, { orderId })
+            return { success: false, error: uploadResult.error || 'Gagal mengunggah file. Silakan hubungi admin.' }
         }
 
-        const { data: { publicUrl } } = supabase.storage
-            .from('payment-proofs')
-            .getPublicUrl(filePath)
+        // Generate proxy URL: /api/assets/payment-proofs/[filename]
+        const proxyUrl = `/api/assets/payment-proofs/${uploadResult.fileName}`
 
         const updateData = isFinal 
-            ? { finalPaymentProofUrl: publicUrl }
-            : { paymentProofUrl: publicUrl }
+            ? { finalPaymentProofUrl: proxyUrl }
+            : { paymentProofUrl: proxyUrl }
 
         await db.update(orders).set(updateData).where(eq(orders.id, orderId))
 
-        logger.info(ACTION, 'Payment proof updated', { orderId, publicUrl })
+        logger.info(ACTION, 'Payment proof updated with proxy URL', { orderId, proxyUrl })
         revalidateTag('orders', 'default')
         revalidatePath(`/orders/${orderId}`)
         revalidatePath('/admin/orders')
 
-        return { success: true, url: publicUrl }
+        return { success: true, url: proxyUrl }
     } catch (error: any) {
         logger.error(ACTION, 'Internal system error', error, { orderId })
         const message = error.name === 'ZodError' ? 'Data input tidak valid' : 'Terjadi kesalahan sistem'
