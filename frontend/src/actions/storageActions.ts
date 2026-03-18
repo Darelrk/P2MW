@@ -26,29 +26,56 @@ const UPLOAD_CONFIG = {
 
 /**
  * Secure file upload with comprehensive validation
+ * ROUTING: Product images/models → R2, User uploads → Supabase
  */
-export async function uploadFile(formData: FormData, bucket: string = 'products') {
-    const ACTION = 'uploadFile';
-    
-    try {
-        const file = formData.get('file') as File
+export async function uploadFile(
+  formData: FormData,
+  bucket: string = 'products',
+  storage: 'auto' | 'r2' | 'supabase' = 'auto'
+) {
+  const ACTION = 'uploadFile'
 
-        // ✅ Validate file exists
-        if (!file || file.size === 0) {
-            return { success: false, error: 'No file provided' }
-        }
+  // ✅ Auto-routing: Products to R2, User uploads to Supabase
+  const useR2 =
+    storage === 'r2' ||
+    (storage === 'auto' && ['products', 'product-models'].includes(bucket))
 
-        // ✅ Validate file size
-        if (file.size > UPLOAD_CONFIG.maxFileSize) {
-            const maxSizeMB = (UPLOAD_CONFIG.maxFileSize / 1024 / 1024).toFixed(2);
-            return { 
-                success: false, 
-                error: `File size exceeds maximum allowed size of ${maxSizeMB}MB` 
-            }
-        }
+  if (useR2) {
+    // Route to R2 for product images and 3D models
+    const type = bucket === 'product-models' ? 'model' : 'product'
+    const { uploadToR2Action } = await import('@/actions/uploadToR2')
+    return await uploadToR2Action(formData, type)
+  }
 
-        // ✅ Validate file extension
-        const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+  // Fall back to Supabase for user uploads (with RLS)
+  return uploadToSupabase(formData, bucket)
+}
+
+/**
+ * Upload to Supabase Storage (for user uploads with RLS)
+ */
+async function uploadToSupabase(formData: FormData, bucket: string) {
+  const ACTION = 'uploadFile'
+  
+  try {
+    const file = formData.get('file') as File
+
+    // ✅ Validate file exists
+    if (!file || file.size === 0) {
+      return { success: false, error: 'No file provided' }
+    }
+
+    // ✅ Validate file size
+    if (file.size > UPLOAD_CONFIG.maxFileSize) {
+      const maxSizeMB = (UPLOAD_CONFIG.maxFileSize / 1024 / 1024).toFixed(2)
+      return {
+        success: false,
+        error: `File size exceeds maximum allowed size of ${maxSizeMB}MB`,
+      }
+    }
+
+    // ✅ Validate file extension
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || ''
         const allowedExts = UPLOAD_CONFIG.allowedExtensions[bucket] || [];
         const extMatch = allowedExts.some(ext => file.name.toLowerCase().endsWith(ext));
         
