@@ -69,7 +69,8 @@ function HeroBackground() {
                     className="object-cover opacity-15"
                     priority
                     fetchPriority="high"
-                    sizes="(max-width: 1280px) 100vw, 1280px"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 1280px"
+                    quality={75}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-forest/70 via-forest/50 to-forest/80" />
                 <div className="absolute inset-0 bg-gradient-to-r from-forest/80 via-forest/40 to-transparent" />

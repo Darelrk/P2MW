@@ -34,6 +34,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
+      <head>
+        {/* Preload LCP hero image for mobile */}
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero-bouquet.png"
+          imageSrcSet="/images/hero-bouquet.png 480w, /images/hero-bouquet.png 800w, /images/hero-bouquet.png 1200w"
+          imageSizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 1280px"
+        />
+      </head>
       <body
         suppressHydrationWarning
         className={`${playfair.variable} ${inter.variable} font-body antialiased bg-cream-light text-forest relative min-h-screen`}
