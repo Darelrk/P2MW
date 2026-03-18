@@ -164,7 +164,6 @@ function CardContent({ card, isActive, shineX, shineY }: CardContentProps) {
                 priority={isActive}
                 sizes="(max-width: 768px) 224px, 272px"
                 quality={65}
-                unoptimized={true}
             />
 
             {/* Gradient vignette */}
