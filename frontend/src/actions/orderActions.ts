@@ -2,11 +2,12 @@
 
 import { db } from '@/db'
 import { orders, orderItems, products } from '@/db/schema'
-import { eq, desc, sql, and } from 'drizzle-orm'
+import { eq, desc, sql } from 'drizzle-orm'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { OrderSchema } from '@/lib/validations'
 import { logger } from '@/utils/logger'
-import { AppError, ValidationError } from '@/lib/errors'
+import { createSafeAction } from '@/actions/safe-action'
+import { z } from 'zod'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -25,17 +26,13 @@ function generateOrderNumber(): string {
 /**
  * Creates a new order and returns the order details for WhatsApp redirect.
  */
-export async function createOrder(data: any) {
-    const ACTION = 'createOrder'
-    try {
-        logger.info(ACTION, 'Attempting to create order', { customer: data.customerName })
-        
-        // Zod validation
-        const validated = OrderSchema.parse(data)
-
-        const orderNumber = generateOrderNumber()
-        const totalRounded = Math.round(validated.totalAmount)
-        const dpAmount = validated.paymentMethod === 'dp' ? Math.round(totalRounded * 0.5) : 0
+export const createOrder = createSafeAction(
+    'createOrder',
+    OrderSchema,
+    async (validated) => {
+        const orderNumber = generateOrderNumber();
+        const totalRounded = Math.round(validated.totalAmount);
+        const dpAmount = validated.paymentMethod === 'dp' ? Math.round(totalRounded * 0.5) : 0;
 
         const [newOrder] = await db.insert(orders).values({
             orderNumber,
@@ -48,24 +45,23 @@ export async function createOrder(data: any) {
             dpAmount,
             paidAmount: 0,
             status: 'pending',
-        }).returning()
+        }).returning();
 
         if (validated.items.length > 0) {
-            await insertOrderItems(newOrder.id, validated.items)
+            await insertOrderItems(newOrder.id, validated.items);
         }
 
-        logger.info(ACTION, 'Order created successfully', { orderId: newOrder.id, orderNumber })
-        revalidateTag('orders', 'default')
-        revalidatePath('/admin/orders')
-        return { success: true, order: newOrder }
-    } catch (error: any) {
-        logger.error(ACTION, 'Failed to create order', error)
-        const message = error.name === 'ZodError' 
-            ? 'Data yang Anda masukkan tidak valid. Periksa kembali form Anda.' 
-            : 'Gagal membuat pesanan. Silakan coba lagi.'
-        return { success: false, error: message }
-    }
-}
+        revalidateTag('orders', 'default');
+        revalidatePath('/admin/orders');
+        
+        return { 
+            id: newOrder.id, 
+            orderNumber: newOrder.orderNumber,
+            totalAmount: newOrder.totalAmount
+        };
+    },
+    { requireAdmin: false }
+);
 
 /**
  * Validates and inserts order items for a specific order.
@@ -94,9 +90,11 @@ async function insertOrderItems(orderId: string, items: any[]) {
 /**
  * Get all orders for the admin dashboard.
  */
-export async function getOrders() {
-    try {
-        const result = await db.query.orders.findMany({
+export const getOrders = createSafeAction(
+    'getOrders',
+    z.any(),
+    async () => {
+        return await db.query.orders.findMany({
             with: {
                 items: {
                     with: {
@@ -105,89 +103,83 @@ export async function getOrders() {
                 }
             },
             orderBy: [desc(orders.createdAt)],
-        })
-        return result
-    } catch (error) {
-        console.error('Failed to fetch orders:', error)
-        throw new Error('Gagal mengambil data pesanan.')
+        });
     }
-}
+);
 
 /**
  * Get a single order by its ID.
  */
-export async function getOrderById(orderId: string) {
-    try {
+export const getOrderById = createSafeAction(
+    'getOrderById',
+    z.string().uuid(),
+    async (orderId) => {
         const order = await db.query.orders.findFirst({
             where: eq(orders.id, orderId),
-        })
-        if (!order) return null
+        });
+        if (!order) return null;
 
         const items = await db.query.orderItems.findMany({
             where: eq(orderItems.orderId, orderId),
-        })
+        });
 
-        return { ...order, items }
-    } catch (error) {
-        console.error('Failed to fetch order:', error)
-        return null
+        return { ...order, items };
     }
-}
+);
 
 /**
  * Get a single order by its order number.
  */
-export async function getOrderByNumber(orderNumber: string) {
-    try {
+export const getOrderByNumber = createSafeAction(
+    'getOrderByNumber',
+    z.string(),
+    async (orderNumber) => {
         const order = await db.query.orders.findFirst({
             where: eq(orders.orderNumber, orderNumber),
-        })
-        if (!order) return null
+        });
+        if (!order) return null;
 
         const items = await db.query.orderItems.findMany({
             where: eq(orderItems.orderId, order.id),
-        })
+        });
 
-        return { ...order, items }
-    } catch (error) {
-        console.error('Failed to fetch order by number:', error)
-        return null
-    }
-}
+        return { ...order, items };
+    },
+    { requireAdmin: false }
+);
 
 /**
  * Update order status and sync stock if necessary (Admin action).
  */
-export async function updateOrderStatus(orderId: string, status: string, adminNotes?: string) {
-    const ACTION = 'updateOrderStatus'
-    try {
-        logger.info(ACTION, 'Updating order status', { orderId, status })
-        
+export const updateOrderStatus = createSafeAction(
+    'updateOrderStatus',
+    z.object({
+        orderId: z.string().uuid(),
+        status: z.string(),
+        adminNotes: z.string().optional(),
+    }),
+    async ({ orderId, status, adminNotes }) => {
         const order = await db.query.orders.findFirst({
             where: eq(orders.id, orderId),
-        })
+        });
 
         if (!order) {
-            logger.warn(ACTION, 'Order not found', { orderId })
-            return { success: false, error: 'Pesanan tidak ditemukan.' }
+            throw new Error('Pesanan tidak ditemukan.');
         }
 
-        const updateData = calculateStatusUpdate(order, status, adminNotes)
+        const updateData = calculateStatusUpdate(order, status, adminNotes);
         
         // Sync stock based on status transitions
-        await syncStockOnStatusChange(orderId, order.status, status)
+        await syncStockOnStatusChange(orderId, order.status, status);
 
-        await db.update(orders).set(updateData).where(eq(orders.id, orderId))
+        await db.update(orders).set(updateData).where(eq(orders.id, orderId));
 
-        revalidateTag('orders', 'default')
-        revalidatePath('/admin/orders')
-        logger.info(ACTION, 'Order status updated', { orderId, from: order.status, to: status })
-        return { success: true }
-    } catch (error) {
-        logger.error(ACTION, 'Failed to update order status', error, { orderId })
-        return { success: false, error: 'Gagal memperbarui status pesanan.' }
+        revalidateTag('orders', 'default');
+        revalidatePath('/admin/orders');
+        
+        return { id: orderId, status };
     }
-}
+);
 
 /**
  * Calculates updated fields based on status change.

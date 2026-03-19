@@ -2,9 +2,9 @@ import { CustomBuilder } from "@/features/bouquet-builder/CustomBuilder";
 import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
-import { db } from "@/db";
+import { getBuilderOptions } from "@/db/queries";
 import { builderOptions } from "@/db/schema";
-import { eq, InferSelectModel, and } from "drizzle-orm";
+import { type InferSelectModel } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -18,14 +18,8 @@ type BuilderOption = InferSelectModel<typeof builderOptions>;
 
 export default async function CustomPage() {
     // Fetch configuration from DB based on availability and not deleted
-    const dbOptions = await db.select()
-        .from(builderOptions)
-        .where(
-            and(
-                eq(builderOptions.isAvailable, true),
-                eq(builderOptions.isDeleted, false)
-            )
-        ) as BuilderOption[];
+    // This now uses the centralized query with unstable_cache
+    const dbOptions = await getBuilderOptions();
 
     return (
         <>

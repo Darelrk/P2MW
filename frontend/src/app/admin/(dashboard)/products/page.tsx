@@ -1,6 +1,6 @@
-import { db } from '@/db'
+import { getAllProductsAdmin } from '@/db/queries'
 import { products } from '@/db/schema'
-import { desc, InferSelectModel, eq } from 'drizzle-orm'
+import { type InferSelectModel } from 'drizzle-orm'
 import ProductsClient from './ProductsClient'
 
 export const dynamic = 'force-dynamic'
@@ -11,10 +11,8 @@ export default async function AdminProductsPage() {
     let items: Product[] = [];
     
     try {
-        // Fetch all products sorted by newest first (to support history view)
-        items = await db.select()
-            .from(products)
-            .orderBy(desc(products.createdAt)) as Product[];
+        // Fetch all products using secured query
+        items = await getAllProductsAdmin() as Product[];
     } catch (error) {
         console.error('Failed to fetch products:', error);
         // Fallback to empty array

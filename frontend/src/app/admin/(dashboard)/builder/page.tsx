@@ -1,6 +1,6 @@
-import { db } from '@/db'
+import { getAllBuilderOptionsAdmin } from '@/db/queries'
 import { builderOptions } from '@/db/schema'
-import { desc, InferSelectModel, eq } from 'drizzle-orm'
+import { type InferSelectModel } from 'drizzle-orm'
 import BuilderClient from './BuilderClient'
 
 export const dynamic = 'force-dynamic'
@@ -11,10 +11,8 @@ export default async function AdminBuilderPage() {
     let items: BuilderOption[] = [];
     
     try {
-        // Fetch options sorted by newest first (to support history view)
-        items = await db.select()
-            .from(builderOptions)
-            .orderBy(desc(builderOptions.createdAt)) as BuilderOption[];
+        // Fetch options using secured query
+        items = await getAllBuilderOptionsAdmin() as BuilderOption[];
     } catch (error) {
         console.error('Failed to fetch builder options:', error);
         // Fallback to empty array

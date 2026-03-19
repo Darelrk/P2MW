@@ -24,6 +24,11 @@ class Logger {
         const errorMsg = error instanceof Error ? error.stack || error.message : JSON.stringify(error);
         console.error(this.formatMessage('error', action, message, { ...meta, error: errorMsg }));
     }
+
+    security(action: string, message: string, meta?: any) {
+        // Security logs are treated as warnings but with a special prefix
+        console.warn(this.formatMessage('warn', `SECURITY:${action}`, message, meta));
+    }
 }
 
 export const logger = new Logger();

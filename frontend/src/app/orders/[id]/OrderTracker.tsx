@@ -140,11 +140,13 @@ function PaymentProofUpload({ orderId, isFinal, label, currentUrl }: { orderId: 
             const compressed = await compressImage(file);
             const formData = new FormData();
             formData.append('file', compressed);
+            formData.append('orderId', orderId);
+            formData.append('isFinal', String(isFinal));
 
-            const res = await uploadPaymentProof(orderId, formData, isFinal);
-            if (res.success) {
+            const res = await uploadPaymentProof(formData);
+            if (res.data) {
                 toast.success('Bukti pembayaran berhasil diunggah!');
-                setPreview(res.url || null);
+                setPreview(res.data.url || null);
                 setFile(null);
             } else {
                 toast.error(res.error || 'Gagal mengunggah bukti');

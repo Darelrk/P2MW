@@ -2,6 +2,8 @@ import { db } from '@/db'
 import { products, builderOptions, orders, orderItems } from '@/db/schema'
 import { eq, desc, and, sql } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
+import { experimental_taintObjectReference as taintObjectReference } from 'react'
+import 'server-only'
 
 /**
  * Get top selling products for home page.
@@ -105,21 +107,63 @@ export const getDashboardStats = unstable_cache(
 )
 
 /**
+ * Get all products for admin management (including deleted/inactive).
+ */
+export async function getAllProductsAdmin() {
+    return await db.query.products.findMany({
+        orderBy: [desc(products.createdAt)],
+    });
+}
+
+/**
+ * Get all builder options for admin management.
+ */
+export async function getAllBuilderOptionsAdmin() {
+    return await db.query.builderOptions.findMany({
+        orderBy: [desc(builderOptions.createdAt)],
+    });
+}
+
+/**
  * Get 5 most recent orders for dashboard.
  */
 export async function getRecentOrders(limit = 5) {
     try {
-        return await db.query.orders.findMany({
+        const results = await db.query.orders.findMany({
+            columns: {
+                id: true,
+                orderNumber: true,
+                customerName: true,
+                totalAmount: true,
+                status: true,
+                createdAt: true,
+                // Exclude customerPhone and customerAddress for dashboard view
+            },
             with: {
                 items: {
                     with: {
-                        product: true
+                        product: {
+                            columns: {
+                                id: true,
+                                name: true,
+                                imageUrl: true,
+                            }
+                        }
                     }
                 }
             },
             orderBy: [desc(orders.createdAt)],
             limit
         });
+
+        // Taint sensitive fields if they were retrieved (though we excluded them above)
+        // This is a safety measure in case a column selection is missed later
+        results.forEach((order: any) => {
+            // @ts-ignore - taintObjectReference is experimental
+            taintObjectReference('Sensitive Order PII leaked to client', order);
+        });
+
+        return results;
     } catch (error) {
         console.error('Failed to fetch recent orders:', error);
         return [];

@@ -81,15 +81,21 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'", // Added 'wasm-unsafe-eval' for WASM support, keeping 'unsafe-eval' disabled
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.supabase.co https://*.vercel.app",
+              "connect-src 'self' https://*.supabase.co https://*.vercel.app https://pub-b857999ef8284a87bae926095911f75c.r2.dev",
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
+              "upgrade-insecure-requests",
             ].join('; '),
+          },
+          {
+            // Control DNS prefetching
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
           },
         ],
       },
