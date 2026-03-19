@@ -41,7 +41,7 @@ export function useCheckout() {
             const dpAmount = Math.round(grandTotal * 0.5);
 
             // 1. Save order to database FIRST
-            const result = await createOrder({
+            const { data: order, error } = await createOrder({
                 customerName: formData.name,
                 customerPhone: formData.phone,
                 customerAddress: formData.address,
@@ -57,13 +57,11 @@ export function useCheckout() {
                 }))
             });
 
-            if (!result.success || !result.order) {
-                toast.error("Gagal menyimpan pesanan. Silakan coba lagi.");
+            if (error || !order) {
+                toast.error(error || "Gagal menyimpan pesanan. Silakan coba lagi.");
                 setIsSubmitting(false);
                 return;
             }
-
-            const order = result.order;
 
             // 2. Build WhatsApp message (dynamic based on payment method)
             const orderDetails = items.map(item => {

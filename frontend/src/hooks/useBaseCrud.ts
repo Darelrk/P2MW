@@ -74,18 +74,22 @@ export function useBaseCrud<T extends { id: string; imageUrl?: string | null; [k
             
             const imgFormData = new FormData();
             imgFormData.append('file', fileToUpload);
-            const res = await uploadFile(imgFormData, config.uploadBucket || 'products');
-            if (!res.success) throw new Error(res.error);
-            finalImageUrl = res.publicUrl!;
+            imgFormData.append('bucket', config.uploadBucket || 'products');
+            
+            const { data: res, error } = await uploadFile(imgFormData);
+            if (error || !res) throw new Error(error || 'Gagal mengunggah gambar');
+            finalImageUrl = res.url!;
         }
 
         // Handle Model
         if (modelFile) {
             const modelFormData = new FormData();
             modelFormData.append('file', modelFile);
-            const res = await uploadFile(modelFormData, config.modelBucket || 'product-models');
-            if (!res.success) throw new Error(res.error);
-            finalModelUrl = res.publicUrl!;
+            modelFormData.append('bucket', config.modelBucket || 'product-models');
+            
+            const { data: res, error } = await uploadFile(modelFormData);
+            if (error || !res) throw new Error(error || 'Gagal mengunggah model');
+            finalModelUrl = res.url!;
         }
 
         return { finalImageUrl, finalModelUrl };

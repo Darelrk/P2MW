@@ -101,12 +101,17 @@ export default function OrdersClient({ initialData }: { initialData: Order[] }) 
     function handleStatusChange(orderId: string, newStatus: string) {
         const notes = noteInputs[orderId]
         startTransition(async () => {
-            const result = await updateOrderStatus(orderId, newStatus, notes)
-            if (result.success) {
+            const { data, error } = await updateOrderStatus({
+                orderId,
+                status: newStatus,
+                adminNotes: notes
+            })
+            
+            if (data) {
                 toast.success(`Status berhasil diubah menjadi "${STATUS_CONFIG[newStatus]?.label || newStatus}"`)
                 router.refresh()
             } else {
-                toast.error(result.error || 'Gagal memperbarui status')
+                toast.error(error || 'Gagal memperbarui status')
             }
         })
     }

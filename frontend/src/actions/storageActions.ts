@@ -44,11 +44,12 @@ export const uploadFile = createSafeAction(
             (storage === 'auto' && ['products', 'product-models'].includes(bucket));
 
         if (useR2) {
-            // Route to R2 for product images and 3D models
             const type = bucket === 'product-models' ? 'model' : 'product';
             const { uploadToR2Action } = await import('@/actions/uploadToR2');
             formData.append('type', type);
-            return await uploadToR2Action(formData);
+            const res = await uploadToR2Action(formData);
+            if (res.error) throw new Error(res.error);
+            return res.data!;
         }
 
         // Fall back to Supabase for user uploads (with RLS)
@@ -174,10 +175,10 @@ async function uploadToSupabase(formData: FormData, bucket: string) {
         });
 
         return {
-            success: true,
-            publicUrl: data.publicUrl,
+            url: data.publicUrl,
             fileName: fileName,
             size: file.size,
+            storage: 'supabase',
         }
 
     } catch (error) {

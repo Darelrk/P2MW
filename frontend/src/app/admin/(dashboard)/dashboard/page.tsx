@@ -6,15 +6,16 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 
 export default async function AdminDashboard() {
-    const stats = await getDashboardStats();
-    const recentOrders = await getRecentOrders(5);
+    const statsResult = await getDashboardStats();
+    const stats = statsResult || { totalOrders: 0, revenue: 0, pendingOrders: 0, totalProducts: 0, totalOptions: 0 };
+    const recentOrders = await getRecentOrders(5) || [];
 
     const statCards = [
-        { label: 'Total Omzet', value: formatCurrency(stats.revenue), icon: Coins, color: 'text-forest', subValue: 'Total dari pesanan lunas' },
-        { label: 'Total Pesanan', value: stats.totalOrders, icon: ShoppingBag, color: 'text-forest', subValue: 'Seluruh riwayat pesanan' },
-        { label: 'Pesanan Pending', value: stats.pendingOrders, icon: Clock, color: 'text-amber-600', subValue: 'Perlu segera diproses' },
-        { label: 'Produk aktif', value: stats.totalProducts, icon: Package, color: 'text-forest', subValue: 'Katalog produk express' },
-        { label: 'Opsi Builder', value: stats.totalOptions, icon: Layout, color: 'text-forest', subValue: 'Varian bunga & wrapper' },
+        { label: 'Total Revenue', value: formatCurrency(stats.revenue), icon: Coins, color: 'text-forest', subValue: 'Penghasilan tervalidasi' },
+        { label: 'Total Pesanan', value: stats.totalOrders.toString(), icon: ShoppingBag, color: 'text-forest', subValue: 'Seluruh riwayat pesanan' },
+        { label: 'Pending / DP', value: stats.pendingOrders.toString(), icon: Clock, color: 'text-amber-600', subValue: 'Perlu verifikasi' },
+        { label: 'Katalog Produk', value: stats.totalProducts.toString(), icon: Package, color: 'text-forest', subValue: 'Produk aktif saat ini' },
+        { label: 'Opsi Builder', value: stats.totalOptions.toString(), icon: Layout, color: 'text-forest', subValue: 'Varian bunga & wrapping' },
     ];
 
     return (
@@ -69,7 +70,6 @@ export default async function AdminDashboard() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <p className="font-semibold text-forest">{order.customerName}</p>
-                                                <p className="text-xs text-forest/40">{order.whatsappNumber}</p>
                                             </td>
                                             <td className="px-6 py-4 text-forest/60">
                                                 {format(new Date(order.createdAt), 'dd MMM yyyy', { locale: id })}
@@ -84,7 +84,7 @@ export default async function AdminDashboard() {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-right font-bold text-forest">
-                                                {formatCurrency(order.paidAmount)}
+                                                {formatCurrency(order.totalAmount)}
                                             </td>
                                         </tr>
                                     ))

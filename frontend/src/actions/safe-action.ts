@@ -22,7 +22,7 @@ export function createSafeAction<TInput, TOutput>(
     handler: (data: TInput, metadata: ActionMetadata) => Promise<TOutput>,
     options: { requireAdmin?: boolean } = { requireAdmin: true }
 ) {
-    return async (rawInput: unknown): Promise<{ data?: TOutput; error?: string }> => {
+    return async (rawInput?: unknown): Promise<{ data?: TOutput; error?: string }> => {
         try {
             // 1. Get User Session
             const supabase = await createClient();

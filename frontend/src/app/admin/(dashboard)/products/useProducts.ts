@@ -65,15 +65,29 @@ export function useProducts() {
                 editingProduct?.modelUrl
             );
 
-            formData.set('imageUrl', finalImageUrl || '');
-            formData.set('modelUrl', finalModelUrl || '');
-            formData.set('status', String(validatedData.status)); 
+            const dataToSubmit = {
+                name: formData.get('name') as string,
+                description: formData.get('description') as string,
+                priceAffordable: Number(formData.get('priceAffordable')),
+                priceStandard: Number(formData.get('priceStandard')),
+                pricePremium: Number(formData.get('pricePremium')),
+                priceSpecial: Number(formData.get('priceSpecial')),
+                mainTier: formData.get('mainTier') as any,
+                allowSpecial: formData.get('allowSpecial') === 'true',
+                status: formData.get('status') === 'true',
+                imageUrl: finalImageUrl || null,
+                modelUrl: finalModelUrl || null,
+                stock: Number(formData.get('stock')),
+                soldCount: Number(formData.get('soldCount'))
+            };
 
             if (editingProduct) {
-                await updateProduct(editingProduct.id, formData);
+                const res = await updateProduct({ id: editingProduct.id, ...dataToSubmit });
+                if (res.error) throw new Error(res.error);
                 return 'Produk berhasil diperbarui';
             } else {
-                await createProduct(formData);
+                const res = await createProduct(dataToSubmit);
+                if (res.error) throw new Error(res.error);
                 return 'Produk berhasil ditambahkan';
             }
         })();
@@ -100,7 +114,11 @@ export function useProducts() {
         if (!window.confirm(`Hapus produk "${name}"?`)) return;
 
         setDeletingId(id);
-        const promise = deleteProduct(id);
+        const promise = (async () => {
+            const res = await deleteProduct({ id });
+            if (res.error) throw new Error(res.error);
+            return res.data;
+        })();
 
         toast.promise(promise, {
             loading: 'Menghapus...',

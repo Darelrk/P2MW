@@ -4,7 +4,7 @@ import OrdersClient from './OrdersClient'
 export const dynamic = 'force-dynamic'
 
 export default async function OrdersPage() {
-    const orders = await getOrders()
+    const { data: orders = [] } = await getOrders()
 
     return (
         <div>

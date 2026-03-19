@@ -158,10 +158,11 @@ export async function getRecentOrders(limit = 5) {
 
         // Taint sensitive fields if they were retrieved (though we excluded them above)
         // This is a safety measure in case a column selection is missed later
-        results.forEach((order: any) => {
-            // @ts-ignore - taintObjectReference is experimental
-            taintObjectReference('Sensitive Order PII leaked to client', order);
-        });
+        if (typeof taintObjectReference === 'function') {
+            results.forEach((order: any) => {
+                taintObjectReference('Sensitive Order PII leaked to client', order);
+            });
+        }
 
         return results;
     } catch (error) {

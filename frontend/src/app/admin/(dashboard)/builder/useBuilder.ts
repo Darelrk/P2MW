@@ -48,14 +48,21 @@ export function useBuilder() {
                 editingOption?.imageUrl
             );
 
-            formData.set('imageUrl', finalImageUrl || '');
-            formData.set('isAvailable', String(validatedData.isAvailable));
+            const dataToSubmit = {
+                category: formData.get('category') as any,
+                name: formData.get('name') as string,
+                priceAdjustment: Number(formData.get('priceAdjustment')),
+                isAvailable: formData.get('isAvailable') === 'true',
+                imageUrl: finalImageUrl || null,
+            };
 
             if (editingOption) {
-                await updateBuilderOption(editingOption.id, formData);
+                const res = await updateBuilderOption({ id: editingOption.id, ...dataToSubmit });
+                if (res.error) throw new Error(res.error);
                 return 'Opsi berhasil diperbarui';
             } else {
-                await createBuilderOption(formData);
+                const res = await createBuilderOption(dataToSubmit);
+                if (res.error) throw new Error(res.error);
                 return 'Opsi berhasil ditambahkan';
             }
         })();
@@ -81,7 +88,11 @@ export function useBuilder() {
     const handleDelete = async (id: string, name: string) => {
         if (!window.confirm(`Hapus opsi "${name}"?`)) return;
 
-        const promise = deleteBuilderOption(id);
+        const promise = (async () => {
+            const res = await deleteBuilderOption({ id });
+            if (res.error) throw new Error(res.error);
+            return res.data;
+        })();
 
         toast.promise(promise, {
             loading: 'Menghapus...',
